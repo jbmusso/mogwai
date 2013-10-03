@@ -1,0 +1,33 @@
+{
+  "name": "mogwai",
+  "version": "0.0.0",
+  "description": "Object-to-graph mapper for Node.js using Gremlin in Mongoose style (very alpha work)",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gulthor/mogwai.git"
+  },
+  "keywords": [
+    "graph",
+    "gremlin",
+    "object-to-graph",
+    "object",
+    "modeling",
+    "database"
+  ],
+  "author": "Jean-Baptiste Musso <jbmusso+github@gmail.com> (https://github.com/gulthor)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gulthor/mogwai/issues"
+  },
+  "dependencies": {
+    "grex": "~0.2.4"
+  },
+  "devDependencies": {
+    "mocha": "~1.13.0",
+    "should": "~1.3.0"
+  }
+}
