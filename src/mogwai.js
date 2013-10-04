@@ -1,6 +1,6 @@
-var grex = require("grex"),
-    Schema = require("./schema"),
-    Model = require("./model");
+var Schema = require("./schema"),
+    Model = require("./model"),
+    Connection = require("./connection");
 
 module.exports = Mogwai = (function() {
 
@@ -8,27 +8,23 @@ module.exports = Mogwai = (function() {
     console.log("Loading Mogwai, object-to-graph mapper");
     this.schemas = {};
     this.models = {};
+
+    this.connection = null;
+
+    this.createConnection();
   }
 
   Mogwai.prototype.Schema = Schema;
 
+
+  Mogwai.prototype.createConnection = function() {
+    var connection = new Connection(this);
+    this.connection = connection;
+  };
+
+
   Mogwai.prototype.connect = function(settings, callback) {
-    var self = this;
-
-    grex.connect(settings)
-    .then(function (graphDB) {
-      var model, modelName;
-      self.g = graphDB;
-
-      for (modelName in self.models) {
-        model = self.models[modelName];
-        model.prototype.g = model.g = graphDB;
-      }
-      return callback(null, graphDB);
-    })
-    .fail(function(error) {
-      return console.log(error);
-    });
+    this.connection.open(settings, callback);
   };
 
 
@@ -44,7 +40,6 @@ module.exports = Mogwai = (function() {
 
   Mogwai.prototype.registerSchema = function(schemaName, schema) {
     this.schemas[schemaName] = schema;
-    this.models[schemaName] = Model.compile(schemaName, schema, this);
   };
 
 
@@ -53,16 +48,30 @@ module.exports = Mogwai = (function() {
   };
 
 
+  Mogwai.prototype.addModel = function(modelName, model) {
+    this.models[modelName] = model;
+  };
+
+
   Mogwai.prototype.getModel = function(modelName) {
     return this.models[modelName];
   };
 
 
+  /*
+   * Define a model, or retrieve it
+   */
   Mogwai.prototype.model = function(modelName, schema) {
     if (this.hasSchema(modelName)) {
       return this.getModel(modelName);
     }
+
     this.registerSchema(modelName, schema);
+
+    // Compile and add model to Mogwai
+    model = Model.compile(modelName, schema, this);
+    this.addModel(modelName, model);
+
     return this.getModel(modelName);
   };
 

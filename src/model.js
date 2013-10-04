@@ -4,9 +4,11 @@ var Model,
     for (var key in parent) {
       if (__hasProp.call(parent, key)) child[key] = parent[key];
     }
+
     function ctor() {
       this.constructor = child;
     }
+
     ctor.prototype = parent.prototype;
     child.prototype = new ctor();
     child.__super__ = parent.prototype;
@@ -16,7 +18,9 @@ var Model,
 
 module.exports = Model = (function() {
 
-  function Model() {}
+  function Model() {
+    this.schema = null;
+  }
 
   Model.prototype.exec = function(grexQuery, callback) {
     console.log("Grex:", grexQuery.params);
@@ -151,7 +155,7 @@ module.exports = Model = (function() {
   /*
     Delete a Vertex by ID.
   */
-  Model["delete"] = function(id, callback) {
+  Model.delete = function(id, callback) {
     this.g.removeVertex(g.v(id))
     .then(function(result) {
       return callback(null, result);
@@ -170,15 +174,25 @@ module.exports = Model = (function() {
     @return {Class}
   */
   Model.compile = function(name, schema, base) {
-    model = (function(_super) {
+    console.log("-- Compiling Model: "+name);
 
+    model = (function(_super) {
       __extends(model, _super);
       function model() {
         return model.__super__.constructor.apply(this, arguments);
       }
 
-      model.prototype.g = model.g = base.g;
-      model.prototype.connection = model.connection = base;
+      // Bind grex client to model as g property
+      // We're doing so because models are usually compiled *before* the connection is fully established (grex connects async).
+      model.__defineGetter__("g", function(){
+        return base.connection.grex;
+      });
+
+      model.prototype.__defineGetter__("g", function() {
+        return base.connection.grex;
+      })
+
+      // Define vertex _type as model's name. This could be improved.
       model.prototype.type = name.toLowerCase();
 
       return model;
@@ -186,18 +200,23 @@ module.exports = Model = (function() {
     })(Model);
 
     // Add instance methods
-    var fnName;
-    for (fnName in schema.methods) {
+    for (var fnName in schema.methods) {
       model.prototype[fnName] = schema.methods[fnName];
     }
 
     // Add class methods
-    for (fnName in schema.statics) {
+    for (var fnName in schema.statics) {
       model[fnName] = schema.statics[fnName];
     }
 
+    model.schema = model.prototype.schema;
+
+    console.log("-- Done compiling --\n");
+
     return model;
   };
+
+
 
   return Model;
 
