@@ -1,4 +1,4 @@
-var Mogwai = require("./lib/mogwai");
+var Mogwai = require("./src/mogwai");
 
 var Singleton = (function() {
   var instance = null;
