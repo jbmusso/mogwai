@@ -6,7 +6,7 @@ var Singleton = (function() {
   function Singleton() {}
 
   Singleton.get = function() {
-    return instance != null ? instance : instance = new Mogwai();
+    return instance !== null ? instance : instance = new Mogwai();
   };
 
   return Singleton;

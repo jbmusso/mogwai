@@ -1,12 +1,8 @@
-var Mogwai;
-
-var grex = require("grex")
-  , Schema = require("./schema")
-  , Model = require("./model");
+var grex = require("grex"),
+    Schema = require("./schema"),
+    Model = require("./model");
 
 module.exports = Mogwai = (function() {
-
-  Mogwai.prototype.Schema = Schema;
 
   function Mogwai() {
     console.log("Loading Mogwai, object-to-graph mapper");
@@ -14,19 +10,19 @@ module.exports = Mogwai = (function() {
     this.models = {};
   }
 
+  Mogwai.prototype.Schema = Schema;
 
   Mogwai.prototype.connect = function(settings, callback) {
     var self = this;
-    
+
     grex.connect(settings)
     .then(function (graphDB) {
-      var model, modelName, _ref;
+      var model, modelName;
       self.g = graphDB;
-      _ref = self.models;
-      for (modelName in _ref) {
-        model = _ref[modelName];
-        model.g = graphDB;
-        model.prototype.g = graphDB;
+
+      for (modelName in self.models) {
+        model = self.models[modelName];
+        model.prototype.g = model.g = graphDB;
       }
       return callback(null, graphDB);
     })
@@ -42,7 +38,7 @@ module.exports = Mogwai = (function() {
 
 
   Mogwai.prototype.hasSchema = function(schemaName) {
-    return this.schemas[schemaName] != null;
+    return this.schemas.hasOwnProperty(schemaName);
   };
 
 

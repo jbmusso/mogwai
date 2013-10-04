@@ -1,5 +1,5 @@
-var Model = require("./model")
-  , Schema;
+var Model = require("./model"),
+    Schema;
 
 module.exports = Schema = (function() {
 

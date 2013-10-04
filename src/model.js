@@ -33,14 +33,12 @@ module.exports = Model = (function() {
    * Insert a document, or update if already present (checks the vertex _id)
   */
   Model.prototype.save = function(callback) {
-    var doc;
-
-    if (this._id != null) {
+    if (this._id !== null) {
       // Vertex already exist, just update it
       return this.update(callback);
     } else {
       // Missing, insert a new vertex
-      doc = this;
+      var doc = this;
       doc.type = this.type;
       return this.insert(doc, callback);
     }
@@ -65,6 +63,7 @@ module.exports = Model = (function() {
 
   Model.prototype.insert = function(doc, callback) {
     var query, trxn;
+
     trxn = this.g.begin();
     trxn.addVertex(doc);
     query = trxn.commit();
@@ -75,14 +74,14 @@ module.exports = Model = (function() {
 
   /*
     Executes a Gremlin (grex) query, and return results as raw documents or models.
-  
+
     TODO: improve performance when fetching only one document (check condition and remove loop).
-  
+
     @param grexQuery {Function} grex query to execute
     @param asModel {Boolean} Whether retrieve each document as raw document or as a model instance (defaults to true)
   */
   Model.find = function(grexQuery, asModel, callback) {
-    if (typeof grexQuery === !"function") {
+    if (typeof grexQuery !== "object" || typeof grexQuery === null) {
       return callback("You must provide a valid Gremlin query");
     }
 
@@ -106,8 +105,7 @@ module.exports = Model = (function() {
       }
 
       // Return all vertices/documents as model instances
-      var doc, key, result, _len;
-      var results = [];
+      var doc, key, result, results = [];
       for (var i = 0, _len = success.results.length; i < _len; i++) {
         result = success.results[i];
         doc = new self();
@@ -131,7 +129,7 @@ module.exports = Model = (function() {
   Model.findOne = function(field, callback) {
     var key = Object.keys(field)[0];
     var query = this.g.V(key, field[key]).index(0);
-    
+
     this.find(query, function(err, results) {
       return callback(err, results[0]);
     });
@@ -143,7 +141,7 @@ module.exports = Model = (function() {
   */
   Model.findById = function(id, callback) {
     var query = this.g.v(id);
-    
+
     this.find(query, function(err, results) {
       return callback(err, results[0]);
     });
@@ -166,13 +164,13 @@ module.exports = Model = (function() {
 
   /*
     Dynamically build an instantiable model class
-  
+
     @inspiredBy: https://github.com/LearnBoost/mongoose/blob/a04860f30f03c44029ea64ec2b08e723e6baf899/lib/model.js#L2454
-  
+
     @return {Class}
   */
   Model.compile = function(name, schema, base) {
-    var model = (function(_super) {
+    model = (function(_super) {
 
       __extends(model, _super);
       function model() {
@@ -188,16 +186,16 @@ module.exports = Model = (function() {
     })(Model);
 
     // Add instance methods
-    var _ref = schema.methods;
-    for (var name in _ref) {
-      model.prototype[name] = _ref[name];
+    var fnName;
+    for (fnName in schema.methods) {
+      model.prototype[fnName] = schema.methods[fnName];
     }
 
     // Add class methods
-    var _ref1 = schema.statics;
-    for (var name in _ref1) {
-      model[name] = _ref1[name];
+    for (fnName in schema.statics) {
+      model[fnName] = schema.statics[fnName];
     }
+
     return model;
   };
 
