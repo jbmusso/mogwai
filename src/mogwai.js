@@ -1,6 +1,7 @@
 var Schema = require("./schema"),
     Model = require("./model"),
-    Connection = require("./connection");
+    Connection = require("./connection"),
+    ModelCompiler = require("./modelcompiler");
 
 module.exports = Mogwai = (function() {
 
@@ -8,6 +9,7 @@ module.exports = Mogwai = (function() {
     console.log("Loading Mogwai, object-to-graph mapper");
     this.schemas = {};
     this.models = {};
+    this.modelCompiler = new ModelCompiler(this);
 
     this.connection = null;
 
@@ -69,7 +71,7 @@ module.exports = Mogwai = (function() {
     this.registerSchema(modelName, schema);
 
     // Compile and add model to Mogwai
-    model = Model.compile(modelName, schema, this);
+    model = this.modelCompiler.compile(modelName, schema);
     this.addModel(modelName, model);
 
     return this.getModel(modelName);

@@ -1,26 +1,9 @@
-var Model,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) {
-    for (var key in parent) {
-      if (__hasProp.call(parent, key)) child[key] = parent[key];
-    }
-
-    function ctor() {
-      this.constructor = child;
-    }
-
-    ctor.prototype = parent.prototype;
-    child.prototype = new ctor();
-    child.__super__ = parent.prototype;
-    return child;
-  };
-
-
 module.exports = Model = (function() {
 
   function Model() {
     this.schema = null;
   }
+
 
   Model.prototype.exec = function(grexQuery, callback) {
     console.log("Grex:", grexQuery.params);
@@ -164,58 +147,6 @@ module.exports = Model = (function() {
       return callback(err);
     });
   };
-
-
-  /*
-    Dynamically build an instantiable model class
-
-    @inspiredBy: https://github.com/LearnBoost/mongoose/blob/a04860f30f03c44029ea64ec2b08e723e6baf899/lib/model.js#L2454
-
-    @return {Class}
-  */
-  Model.compile = function(name, schema, base) {
-    console.log("-- Compiling Model: "+name);
-
-    model = (function(_super) {
-      __extends(model, _super);
-      function model() {
-        return model.__super__.constructor.apply(this, arguments);
-      }
-
-      // Bind grex client to model as g property
-      // We're doing so because models are usually compiled *before* the connection is fully established (grex connects async).
-      model.__defineGetter__("g", function(){
-        return base.connection.grex;
-      });
-
-      model.prototype.__defineGetter__("g", function() {
-        return base.connection.grex;
-      })
-
-      // Define vertex _type as model's name. This could be improved.
-      model.prototype.type = name.toLowerCase();
-
-      return model;
-
-    })(Model);
-
-    // Add instance methods
-    for (var fnName in schema.methods) {
-      model.prototype[fnName] = schema.methods[fnName];
-    }
-
-    // Add class methods
-    for (var fnName in schema.statics) {
-      model[fnName] = schema.statics[fnName];
-    }
-
-    model.schema = model.prototype.schema;
-
-    console.log("-- Done compiling --\n");
-
-    return model;
-  };
-
 
 
   return Model;
