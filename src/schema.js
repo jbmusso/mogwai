@@ -1,5 +1,5 @@
 var Model = require("./model"),
-    Schema;
+    Property = require("./property");
 
 module.exports = Schema = (function() {
 
@@ -20,10 +20,11 @@ module.exports = Schema = (function() {
 
 
   Schema.prototype.add = function(properties) {
-    var property;
+    var propertyDefinition, property;
 
     for (var propertyName in properties) {
-      property = properties[propertyName];
+      propertyDefinition = properties[propertyName];
+      property = new Property(propertyName, propertyDefinition);
       this.properties[propertyName] = property;
     }
   };

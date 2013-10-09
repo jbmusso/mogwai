@@ -64,11 +64,11 @@ module.exports = Model = (function() {
 
     for (var name in properties) {
       property = properties[name];
-      if (property.index) {
-        // console.log(name, "Indexed! Adding", this.name);
+      if (property.isIndexed()) {
+        // console.log(property.name, "Indexed! Adding", this.name);
         // v.addProperty(name, this.name);
       } else {
-        // console.log(name, "Not indexed!");
+        // console.log(property.name, "Not indexed!");
         // v.setProperty(name, this.name);
       }
     }
