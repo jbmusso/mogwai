@@ -13,8 +13,8 @@ module.exports = Schema = (function() {
   }
 
 
-  Schema.prototype.plugin = function(fn, options) {
-    fn(this, options);
+  Schema.prototype.plugin = function(pluginDefinition, options) {
+    pluginDefinition(this, options);
     return this;
   };
 
@@ -33,13 +33,13 @@ module.exports = Schema = (function() {
   /*
    * Add a model instance method definition to current schema
    */
-  Schema.prototype.method = function(name, fn) {
+  Schema.prototype.method = function(name, functionDefinition) {
     if (typeof name !== "string") {
       for (var i in name) {
         this.methods[i] = name[i];
       }
     } else {
-      this.methods[name] = fn;
+      this.methods[name] = functionDefinition;
     }
 
     return this;
@@ -49,13 +49,13 @@ module.exports = Schema = (function() {
   /*
    * Add a static model method definition to current schema
    */
-  Schema.prototype.static = function(name, fn) {
+  Schema.prototype.static = function(name, functionDefinition) {
     if (typeof name !== "string") {
       for (var i in name) {
         this.statics[i] = name[i];
       }
     } else {
-      this.statics[name] = fn;
+      this.statics[name] = functionDefinition;
     }
 
     return this;
