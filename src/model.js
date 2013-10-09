@@ -49,9 +49,10 @@ module.exports = Model = (function() {
     Insert a new Vertex with given doc properties
   */
   Model.prototype.insert = function(callback) {
-    var doc, transaction,
-        field,
-        fields = this.schema.fields;
+    var doc,
+        transaction,
+        property,
+        properties = this.schema.properties;
 
     console.log("Inserting Model...");
 
@@ -61,9 +62,9 @@ module.exports = Model = (function() {
     transaction = this.g.begin();
     transaction.addVertex(doc);
 
-    for (var name in fields) {
-      field = fields[name];
-      if (field.index) {
+    for (var name in properties) {
+      property = properties[name];
+      if (property.index) {
         // console.log(name, "Indexed! Adding", this.name);
         // v.addProperty(name, this.name);
       } else {
@@ -130,9 +131,9 @@ module.exports = Model = (function() {
   /*
     Find a Vertex by name
   */
-  Model.findOne = function(field, callback) {
-    var key = Object.keys(field)[0];
-    var query = this.g.V(key, field[key]).index(0);
+  Model.findOne = function(property, callback) {
+    var key = Object.keys(property)[0];
+    var query = this.g.V(key, property[key]).index(0);
 
     this.find(query, function(err, results) {
       return callback(err, results[0]);

@@ -3,13 +3,13 @@ var Model = require("./model"),
 
 module.exports = Schema = (function() {
 
-  function Schema(fields) {
-    this.fields = {};
+  function Schema(properties) {
+    this.properties = {};
     this.statics = {};
     this.methods = {};
     this.indexes = [];
 
-    this.add(fields);
+    this.add(properties);
   }
 
 
@@ -19,9 +19,12 @@ module.exports = Schema = (function() {
   };
 
 
-  Schema.prototype.add = function(fields) {
-    for (var fieldName in fields) {
-      this.fields[fieldName] = fields[fieldName];
+  Schema.prototype.add = function(properties) {
+    var property;
+
+    for (var propertyName in properties) {
+      property = properties[propertyName];
+      this.properties[propertyName] = property;
     }
   };
 
@@ -58,8 +61,8 @@ module.exports = Schema = (function() {
   };
 
 
-  Schema.prototype.index = function(fieldName) {
-    this.indexes.push(fieldName);
+  Schema.prototype.index = function(propertyName) {
+    this.indexes.push(propertyName);
   };
 
   return Schema;
