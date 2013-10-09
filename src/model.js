@@ -1,22 +1,13 @@
-var Model,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) {
-    for (var key in parent) {
-      if (__hasProp.call(parent, key)) child[key] = parent[key];
-    }
-    function ctor() {
-      this.constructor = child;
-    }
-    ctor.prototype = parent.prototype;
-    child.prototype = new ctor();
-    child.__super__ = parent.prototype;
-    return child;
-  };
-
-
 module.exports = Model = (function() {
 
-  function Model() {}
+  function Model() {
+  }
+
+
+  Model.init = function(callback) {
+    this.base.indexCreator.declareIndexes(this);
+  };
+
 
   Model.prototype.exec = function(grexQuery, callback) {
     console.log("Grex:", grexQuery.params);
@@ -31,16 +22,14 @@ module.exports = Model = (function() {
 
   /*
    * Insert a document, or update if already present (checks the vertex _id)
-  */
+   */
   Model.prototype.save = function(callback) {
-    if (this._id !== null) {
+    if (this.hasOwnProperty("_id")) {
       // Vertex already exist, just update it
       return this.update(callback);
     } else {
       // Missing, insert a new vertex
-      var doc = this;
-      doc.type = this.type;
-      return this.insert(doc, callback);
+      return this.insert(callback);
     }
   };
 
@@ -49,26 +38,55 @@ module.exports = Model = (function() {
     Update current Vertex
   */
   Model.prototype.update = function(callback) {
-    // WARN (TODO/check): The following query may be vulnerable to a Gremlin 'SQL' injection attack
-    var query;
+    var update,
+        properties = [];
 
-    query = this.g.v(this._id)._().sideEffect('{it.name="' + this.name + '"; it.description="' + this.description + '"}');
+    // Build sideEffect update property query
+    update = "{";
+    for (var propertyName in this.schema.properties) {
+      properties.push('it.'+ propertyName +'="'+ this[propertyName] +'"');
+    }
+    update += properties.join("; ");
+    update = update.replace(/\$/g, "\\$"); // Escape dollar sign
+    update += "}";
+
+    // SECURITY WARNING/TODO: The following query *IS* badly vulnerable to a Gremlin 'SQL' injection attack, allowing arbitrary fields to be set. Do not use in production!
+    // TODO: fix encoding bug
+    var query = this.g.v(this._id)._().sideEffect(update);
+
     return this.exec(query, callback);
   };
+
 
   /*
     Insert a new Vertex with given doc properties
   */
+  Model.prototype.insert = function(callback) {
+    var doc,
+        transaction,
+        property,
+        properties = this.schema.properties;
 
+    console.log("Inserting Model...");
 
-  Model.prototype.insert = function(doc, callback) {
-    var query, trxn;
+    doc = this;
+    doc.type = this.type;
 
-    trxn = this.g.begin();
-    trxn.addVertex(doc);
-    query = trxn.commit();
+    transaction = this.g.begin();
+    transaction.addVertex(doc);
 
-    return this.exec(query, callback);
+    for (var name in properties) {
+      property = properties[name];
+      if (property.isIndexed()) {
+        // console.log(property.name, "Indexed! Adding", this.name);
+        // v.addProperty(name, this.name);
+      } else {
+        // console.log(property.name, "Not indexed!");
+        // v.setProperty(name, this.name);
+      }
+    }
+
+    return this.exec(transaction.commit(), callback);
   };
 
 
@@ -126,9 +144,9 @@ module.exports = Model = (function() {
   /*
     Find a Vertex by name
   */
-  Model.findOne = function(field, callback) {
-    var key = Object.keys(field)[0];
-    var query = this.g.V(key, field[key]).index(0);
+  Model.findOne = function(property, callback) {
+    var key = Object.keys(property)[0];
+    var query = this.g.V(key, property[key]).index(0);
 
     this.find(query, function(err, results) {
       return callback(err, results[0]);
@@ -151,7 +169,7 @@ module.exports = Model = (function() {
   /*
     Delete a Vertex by ID.
   */
-  Model["delete"] = function(id, callback) {
+  Model.delete = function(id, callback) {
     this.g.removeVertex(g.v(id))
     .then(function(result) {
       return callback(null, result);
@@ -161,43 +179,6 @@ module.exports = Model = (function() {
     });
   };
 
-
-  /*
-    Dynamically build an instantiable model class
-
-    @inspiredBy: https://github.com/LearnBoost/mongoose/blob/a04860f30f03c44029ea64ec2b08e723e6baf899/lib/model.js#L2454
-
-    @return {Class}
-  */
-  Model.compile = function(name, schema, base) {
-    model = (function(_super) {
-
-      __extends(model, _super);
-      function model() {
-        return model.__super__.constructor.apply(this, arguments);
-      }
-
-      model.prototype.g = model.g = base.g;
-      model.prototype.connection = model.connection = base;
-      model.prototype.type = name.toLowerCase();
-
-      return model;
-
-    })(Model);
-
-    // Add instance methods
-    var fnName;
-    for (fnName in schema.methods) {
-      model.prototype[fnName] = schema.methods[fnName];
-    }
-
-    // Add class methods
-    for (fnName in schema.statics) {
-      model[fnName] = schema.statics[fnName];
-    }
-
-    return model;
-  };
 
   return Model;
 

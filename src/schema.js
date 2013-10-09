@@ -1,26 +1,31 @@
 var Model = require("./model"),
-    Schema;
+    Property = require("./property");
 
 module.exports = Schema = (function() {
 
-  function Schema(fields) {
-    this.fields = {};
+  function Schema(properties) {
+    this.properties = {};
     this.statics = {};
     this.methods = {};
+    this.indexes = [];
 
-    this.add(fields);
+    this.add(properties);
   }
 
 
-  Schema.prototype.plugin = function(fn, options) {
-    fn(this, options);
+  Schema.prototype.plugin = function(pluginDefinition, options) {
+    pluginDefinition(this, options);
     return this;
   };
 
 
-  Schema.prototype.add = function(fields) {
-    for (var fieldName in fields) {
-      this.fields[fieldName] = fields[fieldName].type;
+  Schema.prototype.add = function(properties) {
+    var propertyDefinition, property;
+
+    for (var propertyName in properties) {
+      propertyDefinition = properties[propertyName];
+      property = new Property(propertyName, propertyDefinition);
+      this.properties[propertyName] = property;
     }
   };
 
@@ -28,14 +33,15 @@ module.exports = Schema = (function() {
   /*
    * Add a model instance method definition to current schema
    */
-  Schema.prototype.method = function(name, fn) {
+  Schema.prototype.method = function(name, functionDefinition) {
     if (typeof name !== "string") {
       for (var i in name) {
         this.methods[i] = name[i];
       }
     } else {
-      this.methods[name] = fn;
+      this.methods[name] = functionDefinition;
     }
+
     return this;
   };
 
@@ -43,15 +49,21 @@ module.exports = Schema = (function() {
   /*
    * Add a static model method definition to current schema
    */
-  Schema.prototype.static = function(name, fn) {
+  Schema.prototype.static = function(name, functionDefinition) {
     if (typeof name !== "string") {
       for (var i in name) {
         this.statics[i] = name[i];
       }
     } else {
-      this.statics[name] = fn;
+      this.statics[name] = functionDefinition;
     }
+
     return this;
+  };
+
+
+  Schema.prototype.index = function(propertyName) {
+    this.indexes.push(propertyName);
   };
 
   return Schema;
