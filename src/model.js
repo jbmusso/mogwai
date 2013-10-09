@@ -38,8 +38,21 @@ module.exports = Model = (function() {
     Update current Vertex
   */
   Model.prototype.update = function(callback) {
-    // WARN (TODO/check): The following query may be vulnerable to a Gremlin 'SQL' injection attack
-    var query = this.g.v(this._id)._().sideEffect('{it.name="' + this.name + '"; it.description="' + this.description + '"}');
+    var update,
+        properties = [];
+
+    // Build sideEffect update property query
+    update = "{";
+    for (var propertyName in this.schema.properties) {
+      properties.push('it.'+ propertyName +'="'+ this[propertyName] +'"');
+    }
+    update += properties.join("; ");
+    update = update.replace(/\$/g, "\\$"); // Escape dollar sign
+    update += "}";
+
+    // SECURITY WARNING/TODO: The following query *IS* badly vulnerable to a Gremlin 'SQL' injection attack, allowing arbitrary fields to be set. Do not use in production!
+    // TODO: fix encoding bug
+    var query = this.g.v(this._id)._().sideEffect(update);
 
     return this.exec(query, callback);
   };
