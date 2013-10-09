@@ -1,7 +1,6 @@
 module.exports = Model = (function() {
 
   function Model() {
-    this.schema = null;
   }
 
 
@@ -23,16 +22,14 @@ module.exports = Model = (function() {
 
   /*
    * Insert a document, or update if already present (checks the vertex _id)
-  */
+   */
   Model.prototype.save = function(callback) {
     if (this.hasOwnProperty("_id")) {
       // Vertex already exist, just update it
       return this.update(callback);
     } else {
       // Missing, insert a new vertex
-      var doc = this;
-      doc.type = this.type;
-      return this.insert(doc, callback);
+      return this.insert(callback);
     }
   };
 
@@ -42,25 +39,40 @@ module.exports = Model = (function() {
   */
   Model.prototype.update = function(callback) {
     // WARN (TODO/check): The following query may be vulnerable to a Gremlin 'SQL' injection attack
-    var query;
+    var query = this.g.v(this._id)._().sideEffect('{it.name="' + this.name + '"; it.description="' + this.description + '"}');
 
-    query = this.g.v(this._id)._().sideEffect('{it.name="' + this.name + '"; it.description="' + this.description + '"}');
     return this.exec(query, callback);
   };
+
 
   /*
     Insert a new Vertex with given doc properties
   */
+  Model.prototype.insert = function(callback) {
+    var doc, transaction,
+        field,
+        fields = this.schema.fields;
 
+    console.log("Inserting Model...");
 
-  Model.prototype.insert = function(doc, callback) {
-    var query, trxn;
+    doc = this;
+    doc.type = this.type;
 
-    trxn = this.g.begin();
-    trxn.addVertex(doc);
-    query = trxn.commit();
+    transaction = this.g.begin();
+    transaction.addVertex(doc);
 
-    return this.exec(query, callback);
+    for (var name in fields) {
+      field = fields[name];
+      if (field.index) {
+        // console.log(name, "Indexed! Adding", this.name);
+        // v.addProperty(name, this.name);
+      } else {
+        // console.log(name, "Not indexed!");
+        // v.setProperty(name, this.name);
+      }
+    }
+
+    return this.exec(transaction.commit(), callback);
   };
 
 
