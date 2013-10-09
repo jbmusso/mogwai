@@ -1,28 +1,39 @@
 var Schema = require("./schema"),
     Model = require("./model"),
     Connection = require("./connection"),
-    ModelCompiler = require("./modelcompiler");
+    ModelCompiler = require("./modelcompiler"),
+    IndexCreator = require("./indexcreator"),
+    EventEmitter = require("events").EventEmitter;
+
 
 module.exports = Mogwai = (function() {
 
   function Mogwai() {
+    var self = this;
+
     console.log("Loading Mogwai, object-to-graph mapper");
     this.schemas = {};
     this.models = {};
     this.modelCompiler = new ModelCompiler(this);
+    this.indexCreator = new IndexCreator(this);
 
-    this.connection = null;
+    this.connection = new Connection(this);
 
-    this.createConnection();
+    // Register events
+    this.connection.on("open", function() {
+      console.log("Mogwai: connected to gRex");
+
+      self.indexCreator.createIndexes(function() {
+        self.emit("ready");
+      });
+    });
   }
 
+  // Inherit from EventEmitter
+  Mogwai.prototype = Object.create(EventEmitter.prototype);
+
+
   Mogwai.prototype.Schema = Schema;
-
-
-  Mogwai.prototype.createConnection = function() {
-    var connection = new Connection(this);
-    this.connection = connection;
-  };
 
 
   Mogwai.prototype.connect = function(settings, callback) {

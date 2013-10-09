@@ -5,6 +5,11 @@ module.exports = Model = (function() {
   }
 
 
+  Model.init = function(callback) {
+    this.base.indexCreator.declareIndexes(this);
+  };
+
+
   Model.prototype.exec = function(grexQuery, callback) {
     console.log("Grex:", grexQuery.params);
     grexQuery.then(function(success) {
@@ -20,7 +25,7 @@ module.exports = Model = (function() {
    * Insert a document, or update if already present (checks the vertex _id)
   */
   Model.prototype.save = function(callback) {
-    if (this._id !== null) {
+    if (this.hasOwnProperty("_id")) {
       // Vertex already exist, just update it
       return this.update(callback);
     } else {

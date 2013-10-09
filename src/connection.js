@@ -1,4 +1,5 @@
-var grex = require("grex");
+var grex = require("grex"),
+    EventEmitter = require("events").EventEmitter;
 
 module.exports = Connection = (function() {
 
@@ -7,6 +8,9 @@ module.exports = Connection = (function() {
     this.grex = null;
   }
 
+  // Inherit from EventEmitter
+  Connection.prototype = Object.create(EventEmitter.prototype);
+
 
   Connection.prototype.open = function(settings, callback) {
     var self = this;
@@ -14,6 +18,7 @@ module.exports = Connection = (function() {
     grex.connect(settings)
     .then(function (graphDB) {
       self.grex = graphDB;
+      self.emit("open");
 
       return callback(null, graphDB);
     })

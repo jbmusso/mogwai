@@ -7,6 +7,7 @@ module.exports = Schema = (function() {
     this.fields = {};
     this.statics = {};
     this.methods = {};
+    this.indexes = [];
 
     this.add(fields);
   }
@@ -20,7 +21,7 @@ module.exports = Schema = (function() {
 
   Schema.prototype.add = function(fields) {
     for (var fieldName in fields) {
-      this.fields[fieldName] = fields[fieldName].type;
+      this.fields[fieldName] = fields[fieldName];
     }
   };
 
@@ -36,6 +37,7 @@ module.exports = Schema = (function() {
     } else {
       this.methods[name] = fn;
     }
+
     return this;
   };
 
@@ -51,7 +53,13 @@ module.exports = Schema = (function() {
     } else {
       this.statics[name] = fn;
     }
+
     return this;
+  };
+
+
+  Schema.prototype.index = function(fieldName) {
+    this.indexes.push(fieldName);
   };
 
   return Schema;

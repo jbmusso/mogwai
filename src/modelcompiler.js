@@ -1,8 +1,7 @@
 var Model = require("./model"),
     __extends = require("./extends");
 
-
-module.exports = Mogwai = (function() {
+module.exports = ModelCompiler = (function() {
   function ModelCompiler(base) {
     this.base = base;
   }
@@ -16,30 +15,32 @@ module.exports = Mogwai = (function() {
    */
   ModelCompiler.prototype.compile = function(name, schema) {
     console.log("-- Compiling Model: "+name);
-    self = this;
+    var self = this;
 
-    // Make current model class extends Model class
     model = (function (_super) {
+      // Inherit from Model
       __extends(model, _super);
+
       function model() {
         return model.__super__.constructor.apply(this, arguments);
       }
 
-      // Bind grex client to model as g property
-      // We're doing so because models are very likely to be compiled *before* the connection is fully established (grex connects async).
-      g = function(){
-        return self.base.connection.grex;
-      };
-      model.__defineGetter__("g", g);
-      model.prototype.__defineGetter__("g", g);
-
-      // Define vertex _type as model's name. This could be improved.
-      model.prototype.type = name.toLowerCase();
-      model.foo = "bar";
-
       return model;
 
     })(Model);
+
+    // Add grex getter to model
+    model.prototype.base = model.base = self.base;
+    model.prototype.connection = model.connection = self.base.connection; //todo: replace by a getter?
+    // Define vertex _type as model's name. This could be improved.
+    model.prototype.type = model.type = name.toLowerCase();
+    model.prototype.schema = model.schema = schema;
+
+    var g = {
+      get: function() { return self.base.connection.grex; }
+    };
+    Object.defineProperty(model, "g", g);
+    Object.defineProperty(model.prototype, "g", g);
 
     // Add instance methods
     for (var fnName in schema.methods) {
@@ -51,10 +52,7 @@ module.exports = Mogwai = (function() {
       model[fnName] = schema.statics[fnName];
     }
 
-    model.schema = schema;
-
-    // Model.createIndexes(schema);
-    console.log("-- Done compiling --\n");
+    model.init();
 
     return model;
   };
