@@ -4,7 +4,7 @@ var Q = require("q");
 module.exports = IndexCreator = (function() {
   function IndexCreator(base) {
     this.base = base;
-    this.indexQueryQueue = [];
+    this.indexedModels = [];
   }
 
 
@@ -12,9 +12,9 @@ module.exports = IndexCreator = (function() {
    *
    */
   IndexCreator.prototype.declareIndexes = function(model) {
-    console.log("Indexes for model", model.type, ":", model.schema.indexes);
+    console.log("Indexes for model", model._class, ":", model.schema.indexes);
 
-    this.indexQueryQueue.push(model.schema._indexes);
+    this.indexedModels.push(model);
   };
 
 
@@ -26,20 +26,26 @@ module.exports = IndexCreator = (function() {
     var promises = [],
         query,
         g = this.base.connection.grex,
-        indexQueryQueue = this.indexQueryQueue,
-        indexProperties,
-        indexPropertiesSet,
+        indexedModels = this.indexedModels,
+        indexedModel,
         indexedProperty;
+
+    // console.log("==================================", indexedModels);
 
     console.log("\nCreating index queries...");
 
-    for (var i in indexQueryQueue) {
-      indexPropertiesSet = indexQueryQueue[i];
+    for (var i in indexedModels) {
+      indexedModel = indexedModels[i];
 
-      for (var j in indexPropertiesSet) {
-        indexedProperty = indexPropertiesSet[j];
+      console.log(indexedModel.type);
 
-        query = g.makeType().name(indexedProperty).dataType("String.class").indexed("Vertex.class").unique("Direction.BOTH").makePropertyKey();
+      for (var j in indexedModel.schema.indexes) {
+        indexedProperty = indexedModel.schema.indexes[j];
+        // Titan: see https://github.com/thinkaurelius/titan/wiki/Type-Definition-Overview
+
+        query = g.makeType().name(indexedProperty).dataType("String.class").unique("Direction.IN").indexed("Vertex.class").makePropertyKey();
+        // query = g.makeType().name(indexedProperty).dataType("String.class").indexed("Vertex.class").unique("Direction.OUT").makePropertyKey();
+        // query = g.createIndex(indexedModel.type, "Vertex.class");
 
         console.log("* "+ indexedProperty +" index: "+ query.params);
 
@@ -54,6 +60,7 @@ module.exports = IndexCreator = (function() {
       callback(null, success);
     })
     .fail(function (error) {
+      connection.log("---------error-------------");
       callback(error);
     });
   };

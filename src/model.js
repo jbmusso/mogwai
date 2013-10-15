@@ -11,6 +11,7 @@ module.exports = Model = (function() {
 
   Model.prototype.exec = function(grexQuery, callback) {
     console.log("Grex:", grexQuery.params);
+
     grexQuery.then(function(success) {
       return callback(null, success);
     }).fail(function(err) {
@@ -59,7 +60,7 @@ module.exports = Model = (function() {
 
 
   /*
-    Insert a new Vertex with given doc properties
+    Insert a new Model with given doc properties
   */
   Model.prototype.insert = function(callback) {
     var doc,
@@ -73,20 +74,34 @@ module.exports = Model = (function() {
     doc.type = this.type;
 
     transaction = this.g.begin();
-    transaction.addVertex(doc);
+    v = transaction.addVertex(doc.toObject());
 
     for (var name in properties) {
       property = properties[name];
+
       if (property.isIndexed()) {
-        // console.log(property.name, "Indexed! Adding", this.name);
-        // v.addProperty(name, this.name);
+        // console.log("-", property.name, "(i) =", this.name);
+        v.addProperty(name, this[property.name]);
       } else {
-        // console.log(property.name, "Not indexed!");
-        // v.setProperty(name, this.name);
+        // console.log("-", property.name, " =", this.name);
+        v.setProperty(name, this[property.name]);
       }
     }
 
     return this.exec(transaction.commit(), callback);
+  };
+
+
+  Model.prototype.toObject = function() {
+    var o = {};
+
+    for (var propertyName in this) {
+      if (this.hasOwnProperty(propertyName)) {
+        o[propertyName] = this[propertyName];
+      }
+    }
+
+    return o;
   };
 
 
