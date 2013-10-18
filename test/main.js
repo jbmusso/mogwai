@@ -1,5 +1,5 @@
-var mogwai = require("../")
-  , should = require("should");
+var mogwai = require("../"),
+    should = require("should");
 
 
 describe("Connection", function() {
@@ -7,9 +7,10 @@ describe("Connection", function() {
     var settings = {
       host: "localhost",
       port: 8182,
-      graph: "test-graph"
+      graph: "test-graph",
+      client: "titan"
     };
-    
+
     mogwai.connect(settings, function(err, graphDB) {
       should.not.exist(err);
       should.exist(graphDB);
@@ -33,14 +34,15 @@ describe("Schemas", function() {
     should.exist(mogwai.models[schemaName]);
     done();
   });
+
 });
 
 
 describe("Model", function() {
   it("should have default methods findOne and findById", function(done) {
     should.exist(model.findOne);
-    model.findOne.should.be.a("function");
     should.exist(model.findById);
+    model.findOne.should.be.a("function");
     model.findById.should.be.a("function");
     done();
   });

@@ -2,8 +2,8 @@ var Schema = require("./schema"),
     Model = require("./model"),
     Connection = require("./connection"),
     ModelCompiler = require("./modelcompiler"),
-    IndexCreator = require("./indexcreator"),
-    EventEmitter = require("events").EventEmitter;
+    EventEmitter = require("events").EventEmitter,
+    TitanClient = require("./clients/titan");
 
 
 module.exports = Mogwai = (function() {
@@ -15,15 +15,13 @@ module.exports = Mogwai = (function() {
     this.schemas = {};
     this.models = {};
     this.modelCompiler = new ModelCompiler(this);
-    this.indexCreator = new IndexCreator(this);
 
+    this.client = null;
     this.connection = new Connection(this);
 
     // Register events
     this.connection.on("open", function() {
-      console.log("Mogwai: connected to gRex");
-
-      self.indexCreator.createIndexes(function() {
+      self.client.createIndexes(function() {
         self.emit("ready");
       });
     });
@@ -31,13 +29,24 @@ module.exports = Mogwai = (function() {
 
   // Inherit from EventEmitter
   Mogwai.prototype = Object.create(EventEmitter.prototype);
+  Mogwai.prototype.constructor = Mogwai;
 
 
   Mogwai.prototype.Schema = Schema;
 
 
   Mogwai.prototype.connect = function(settings, callback) {
+    this.buildClient(settings.client);
     this.connection.open(settings, callback);
+  };
+
+
+  Mogwai.prototype.buildClient = function(clientName) {
+    var clients = {
+      titan: TitanClient
+    };
+
+    this.client = new clients[clientName.toLowerCase()](this);
   };
 
 
