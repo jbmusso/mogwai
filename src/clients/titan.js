@@ -78,8 +78,7 @@ module.exports = TitanGraphClient = (function(){
         // Only index keys that were not indexed before, skip otherwise
         if (alreadyIndexedKeys.indexOf(propertyName) === -1) {
           property = schema.properties[propertyName];
-
-          titanKey = g.makeKey(propertyName).dataType("String.class")
+          titanKey = g.makeKey(propertyName).dataType(property.getDataType())
           titanKey.indexed("Vertex.class");
 
           if (property.unique) {

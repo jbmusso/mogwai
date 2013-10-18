@@ -1,5 +1,5 @@
 var Model = require("./model"),
-    Property = require("./property");
+    Property = require("./properties/property");
 
 module.exports = Schema = (function() {
 
@@ -24,7 +24,7 @@ module.exports = Schema = (function() {
 
     for (var propertyName in properties) {
       propertyDefinition = properties[propertyName];
-      property = new Property(propertyName, propertyDefinition);
+      property = Property.build(propertyName, propertyDefinition);
       this.properties[propertyName] = property;
     }
   };
