@@ -5,9 +5,11 @@ Object-to-graph mapper for Node.js using Gremlin, (currently) in Mongoose style.
 
 Mogwai tries to abstract interaction with any [Tinkerpop](http://www.tinkerpop.com/)'s [Blueprints](https://github.com/tinkerpop/blueprints/wiki) compliant Graph databases (ie. TitanDB, Neo4J, OrientDB, FoundationDB, etc.).
 
-Mogwai internally uses [grex](https://github.com/entrendipity/grex), a "Gremlin inspired Rexster Graph Server client", and therefore communicates with the database via HTTP.
+Mogwai internally uses [grex](https://github.com/entrendipity/grex), a "Gremlin inspired Rexster Graph Server client", and therefore currently communicates with the database via HTTP. It may support Rexpro when/if grex does so.
 
-Note that Mogwai is currently developed with [TitanDB](http://thinkaurelius.github.io/titan/) v0.3.2 only, and hasn't been tested with other databases. Although most features should work, expect some of them to not work at all (ie. the still partially supported indexes).
+**Note that Mogwai is currently developed with [TitanDB](http://thinkaurelius.github.io/titan/) v0.4.0 only, and hasn't been tested with other Tinkerpop/Rexster compliant databases**. Although most features should work, expect some of them to not work at all (ie. the still partially supported indexes).
+
+Mogwai is designed to allow the addition of more clients easily (ie. Rexster and Neo4J). Have a look at the `/src/clients` folder.
 
 Comments, suggestions and pull requests are welcome.
 
@@ -25,8 +27,8 @@ or, should you wish to add mogwai as a dependency in your package.json file as w
 Please refer to [grex's documentation](https://github.com/entrendipity/grex/blob/master/README.md) first on how to set up your Graph database/Rexster server (ie. you will have to install Gremlin and Batch kibbles).
 
 
-Usage
-=====
+Introduction
+============
 
 Mogwai's API is currently very close to Mongoose ([see Mongoose documentation](https://github.com/LearnBoost/mongoose/)), a MongoDB modeling library for Node.js. Hence, some method names in Mogwai are very inspired by MongoDB's method (ie. `findOne`, `findById`, etc.).
 
@@ -46,10 +48,11 @@ var mogwai = require("mogwai");
 var settings = {
   host: "localhost",
   port: 8182,
-  graph: "graph"
+  graph: "graph",
+  client: "titan" // Currently the only supported client
 };
 
-// mogwai.connect() is just a wrapper around grex.connect()
+// mogwai.connect() is basically a wrapper around grex.connect()
 mogwai.connect(settings, function(err, connection) {
   // Start here...
 });
@@ -63,14 +66,32 @@ mogwai.connect(settings, function(err, connection) {
 
 Schemas compile into Models which are used to perform CRUD operations on your data.
 
+Models internally manipulate vertices and edges in the graph database.
+
 ```javascript
-var mogwai = require("mogwai");
+// This will internally be saved as a Vertex with a 'name' key of type 'String'
 
 UserSchema = new mogwai.Schema(
-  name:
-    type: String  // Types are currently ignored
-    index: true   // Partially supported
+  name: String
 );
+
+```
+
+Alternatively, you can define properties this way, and add more options:
+
+```javascript
+UserSchema = new mogwai.Schema(
+  name:
+    type: String  // Only 'String' is supported for now
+    index: true   // Should work with Titan v0.4.0
+    unique: true  // Should work with Titan v0.4.0
+);
+
+```
+
+
+### Adding methods ###
+```javascript
 
 UserSchema.statics.findByName = function(name, callback) {
   this.findOne({
@@ -209,7 +230,7 @@ TODO
 
 Features
 
-  * Indexes
+  * More work on indexes
   * Validation
   * Hooks (pre and post middlewares)
   * Getters and setters
