@@ -5,7 +5,6 @@ module.exports = Model = (function() {
 
 
   Model.init = function(callback) {
-    this.base.indexCreator.declareIndexes(this);
   };
 
 

@@ -24,7 +24,7 @@
     "url": "https://github.com/gulthor/mogwai/issues"
   },
   "dependencies": {
-    "grex": "~0.2.4",
+    "grex": "git://github.com/gulthor/grex.git#develop",
     "underscore": "~1.5.2",
     "q": "~0.9.7"
   },
