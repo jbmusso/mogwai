@@ -14,6 +14,8 @@ module.exports = TitanGraphClient = (function(){
    * Loop through each schemas, find keys flagged for indexation, and build
    * types/indexes accordingly.
    *
+   * This method does not recreate indexes on already created keys.
+   *
    * Note: as per Titan's current limitations, "key index must be created prior
    * to key being used".
    *
@@ -30,7 +32,7 @@ module.exports = TitanGraphClient = (function(){
     this.getExistingTypes()
     .then(function(result) {
       alreadyIndexedKeys = result.results
-      console.log("[Mogwai][TitanGraphClient] Will skip "+ alreadyIndexedKeys.length +" already created keys: "+alreadyIndexedKeys);
+      console.log("[Mogwai][TitanGraphClient] Skipping "+ alreadyIndexedKeys.length +" already created keys: "+alreadyIndexedKeys);
 
       return self.buildMakeKeyPromise(alreadyIndexedKeys);
     })
@@ -47,7 +49,7 @@ module.exports = TitanGraphClient = (function(){
   };
 
   /*
-   * Returns the name of already indexed keys.
+   * Retrieves an array of names of already indexed keys.
    *
    * @return {Promise}
    */
@@ -59,42 +61,48 @@ module.exports = TitanGraphClient = (function(){
 
 
   /*
-   * This method won't build make key promises for already indexed keys.
+   * Create data types in Titan, used for indexing.
    *
-   * @return {Promise}
+   * Note that the Mogwai special $type key is automatically indexed.
+   *
+   * This method does not return promise of creation for already created types.
+   *
+   * @return {Promise} to create all keys
    */
   TitanGraphClient.prototype.buildMakeKeyPromise = function(alreadyIndexedKeys) {
     var promises = [],
-        promiseForAll,
         g = this.base.connection.grex,
-        schemas = this.base.schemas,
+        models = this.base.models,
+        schemaProperties,
         propertyName,
-        propery, titanKey, query;
+        property, titanKey;
 
-    for (var i in schemas) {
-      schema = schemas[i];
+    // Make sure we index the Mogwai special $type key used for binding a model type to a vertex.
+    if (alreadyIndexedKeys.indexOf("$type") === -1) {
+      promises.push(g.makeKey("$type").dataType("String.class").indexed("Vertex.class").make());
+    }
 
-      for (var propertyName in schema.properties) {
+    // Also index keys defined for each model, but skip already indexed keys
+    for (var i in models) {
+      schemaProperties = models[i].schema.properties;
+
+      for (var propertyName in schemaProperties) {
         // Only index keys that were not indexed before, skip otherwise
         if (alreadyIndexedKeys.indexOf(propertyName) === -1) {
-          property = schema.properties[propertyName];
-          titanKey = g.makeKey(propertyName).dataType(property.getDataType())
-          titanKey.indexed("Vertex.class");
+          property = schemaProperties[propertyName];
 
-          if (property.unique) {
-            titanKey.unique()
+          titanKey = g.makeKey(propertyName).dataType(property.getDataType()).indexed("Vertex.class");
+
+          if (property.isUnique()) {
+            titanKey.unique();
           }
 
-          query = titanKey.make();
-
-          promises.push(query);
+          promises.push(titanKey.make());
         }
       }
     }
 
-    promiseForAll = Q.all(promises)
-
-    return promiseForAll;
+    return Q.all(promises);
   };
 
 

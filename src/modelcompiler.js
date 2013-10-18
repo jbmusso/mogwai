@@ -11,7 +11,7 @@ module.exports = ModelCompiler = (function() {
    *
    * @inspiredBy: https://github.com/LearnBoost/mongoose/blob/a04860f30f03c44029ea64ec2b08e723e6baf899/lib/model.js#L2454
    *
-   * @return {Class}
+   * @return {Constructor} of model
    */
   ModelCompiler.prototype.compile = function(name, schema) {
     console.log("-- Compiling Model: "+name);
@@ -32,8 +32,10 @@ module.exports = ModelCompiler = (function() {
     // Add grex getter to model
     model.prototype.base = model.base = self.base;
     model.prototype.connection = model.connection = self.base.connection; //todo: replace by a getter?
-    // Define vertex _type as model's name. This could be improved.
-    model.prototype.type = model.type = name.toLowerCase();
+
+    // Define a special $type key used to identify vertices by type in the graph.
+    // Note that this special "Mogwai" key/property is currently automatically indexed in the graph.
+    model.prototype.$type = model.$type = name.toLowerCase();
     model.prototype.schema = model.schema = schema;
 
     var g = {
@@ -57,5 +59,7 @@ module.exports = ModelCompiler = (function() {
     return model;
   };
 
+
   return ModelCompiler;
+
 })();

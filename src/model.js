@@ -70,7 +70,7 @@ module.exports = Model = (function() {
     console.log("Inserting Model...");
 
     doc = this;
-    doc.type = this.type;
+    doc.$type = this.$type;
 
     transaction = this.g.begin();
     v = transaction.addVertex(doc.toObject());
