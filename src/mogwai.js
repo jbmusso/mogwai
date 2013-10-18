@@ -21,8 +21,6 @@ module.exports = Mogwai = (function() {
 
     // Register events
     this.connection.on("open", function() {
-      console.log("Mogwai: connected to gRex");
-
       self.client.createIndexes(function() {
         self.emit("ready");
       });
@@ -31,7 +29,7 @@ module.exports = Mogwai = (function() {
 
   // Inherit from EventEmitter
   Mogwai.prototype = Object.create(EventEmitter.prototype);
-  Mogwai.prototype.constructor = EventEmitter;
+  Mogwai.prototype.constructor = Mogwai;
 
 
   Mogwai.prototype.Schema = Schema;
@@ -46,7 +44,7 @@ module.exports = Mogwai = (function() {
   Mogwai.prototype.buildClient = function(clientName) {
     var clients = {
       titan: TitanClient
-    }
+    };
 
     this.client = new clients[clientName.toLowerCase()](this);
   };

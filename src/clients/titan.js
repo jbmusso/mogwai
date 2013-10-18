@@ -2,8 +2,6 @@ var Q = require("q");
 
 module.exports = TitanGraphClient = (function(){
   function TitanGraphClient (base) {
-    console.log("[Mogwai] Building Titan client");
-
     this.base = base;
   }
 
@@ -31,14 +29,10 @@ module.exports = TitanGraphClient = (function(){
 
     this.getExistingTypes()
     .then(function(result) {
-      alreadyIndexedKeys = result.results
-      console.log("[Mogwai][TitanGraphClient] Skipping "+ alreadyIndexedKeys.length +" already created keys: "+alreadyIndexedKeys);
-
+      alreadyIndexedKeys = result.results;
       return self.buildMakeKeyPromise(alreadyIndexedKeys);
     })
     .then(function(success) {
-      console.log("[Mogwai][TitanGraphClient] Created "+ success.length +" property keys");
-
       callback(null, success);
     })
     .fail(function(error) {

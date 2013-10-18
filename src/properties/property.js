@@ -17,6 +17,7 @@ module.exports = Property = (function() {
    * @param {Object} propertyDefinition
    */
   Property.build = function (name, propertyDefinition) {
+    var property;
     var propertyTypes = {
       string: require("./string")
     };
@@ -24,14 +25,14 @@ module.exports = Property = (function() {
     var type = Property.retrieveType(propertyDefinition);
 
     try {
-      var property = new propertyTypes[type](name, propertyDefinition);
+      property = new propertyTypes[type](name, propertyDefinition);
       property.applyDefinition(propertyDefinition);
     } catch(e) {
       console.error("Unsupported property type: "+ e);
     }
 
     return property;
-  }
+  };
 
   /*
    * Retrieve the type of a property, as a string, from a property definition.
@@ -49,7 +50,7 @@ module.exports = Property = (function() {
     }
 
     return type.toLowerCase();
-  }
+  };
 
   /*
    * Apply a property definition, retrieves some information about that

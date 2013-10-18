@@ -14,7 +14,6 @@ module.exports = ModelCompiler = (function() {
    * @return {Constructor} of model
    */
   ModelCompiler.prototype.compile = function(name, schema) {
-    console.log("-- Compiling Model: "+name);
     var self = this;
 
     model = (function (_super) {
