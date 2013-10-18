@@ -1,6 +1,6 @@
 {
   "name": "mogwai",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Object-to-graph mapper for Node.js using Gremlin in Mongoose style (very alpha work)",
   "main": "index.js",
   "scripts": {
