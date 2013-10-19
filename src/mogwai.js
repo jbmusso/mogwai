@@ -17,6 +17,7 @@ module.exports = Mogwai = (function() {
     this.modelCompiler = new ModelCompiler(this);
 
     this.client = null;
+    this.settings = null;
     this.connection = new Connection(this);
 
     // Register events
@@ -36,17 +37,19 @@ module.exports = Mogwai = (function() {
 
 
   Mogwai.prototype.connect = function(settings, callback) {
-    this.buildClient(settings.client);
-    this.connection.open(settings, callback);
+    this.settings = settings;
+
+    this.buildClient();
+    this.connection.open(callback);
   };
 
 
-  Mogwai.prototype.buildClient = function(clientName) {
+  Mogwai.prototype.buildClient = function() {
     var clients = {
       titan: TitanClient
     };
 
-    this.client = new clients[clientName.toLowerCase()](this);
+    this.client = new clients[this.settings.client.toLowerCase()](this);
   };
 
 

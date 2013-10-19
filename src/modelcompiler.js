@@ -37,11 +37,21 @@ module.exports = ModelCompiler = (function() {
     model.prototype.$type = model.$type = name.toLowerCase();
     model.prototype.schema = model.schema = schema;
 
+    // Define getters for grex and gremlin
     var g = {
       get: function() { return self.base.connection.grex; }
     };
     Object.defineProperty(model, "g", g);
     Object.defineProperty(model.prototype, "g", g);
+
+    var gremlin = {
+      get: function() {
+        //todo: avoid bind() trick?
+        return self.base.client.gremlin.bind(self.base.client);
+      }
+    };
+    Object.defineProperty(model, "gremlin", gremlin);
+    Object.defineProperty(model.prototype, "gremlin", gremlin);
 
     // Add instance methods
     for (var fnName in schema.methods) {
