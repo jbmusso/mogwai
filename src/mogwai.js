@@ -1,9 +1,13 @@
+var path = require("path"),
+    fs = require("fs");
+
 var Schema = require("./schema"),
     Model = require("./model"),
     Connection = require("./connection"),
     ModelCompiler = require("./modelcompiler"),
     EventEmitter = require("events").EventEmitter,
-    TitanClient = require("./clients/titan");
+    TitanClient = require("./clients/titan"),
+    Utils = require("./utils");
 
 
 module.exports = Mogwai = (function() {
@@ -87,14 +91,25 @@ module.exports = Mogwai = (function() {
    * Define a model, or retrieve it
    */
   Mogwai.prototype.model = function(modelName, schema) {
+    // Read groovy file content if present
+    var caller = Utils.getCaller().id;
+    var fileName = path.basename(caller, path.extname(caller));
+    var groovyFilePath = path.dirname(caller)+"/"+fileName+".groovy";
+
+    var groovyFile;
+    if (fs.existsSync(groovyFilePath)) {
+      console.log("Found Gremlin .groovy file for "+ modelName +" Schema");
+      groovyFile = fs.readFileSync(groovyFilePath, "utf8");
+    }
+
     if (this.hasSchema(modelName)) {
       return this.getModel(modelName);
     }
 
+    // Add schema to Mogwai and compile Model
     this.registerSchema(modelName, schema);
 
-    // Compile and add model to Mogwai
-    model = this.modelCompiler.compile(modelName, schema);
+    model = this.modelCompiler.compile(modelName, schema, groovyFile);
     this.addModel(modelName, model);
 
     return this.getModel(modelName);
