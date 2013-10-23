@@ -17,6 +17,10 @@ module.exports = RexsterClient = (function(){
    * Sends a request to the server for execution, and returns the response.
    */
   RexsterClient.prototype.request = function(path, script, params, callback) {
+    if (typeof script === "undefined") {
+      return callback("RexsterClient error: can not execute an undefined Gremlinscript");
+    }
+
     var settings = this.base.settings;
     var url = "http://"+ settings.host +":"+ settings.port +"/graphs/"+ settings.graph + path;
 
@@ -43,7 +47,6 @@ module.exports = RexsterClient = (function(){
       // Success!
       callback(null, body);
     });
-    // request.
   };
 
   /*
