@@ -1,6 +1,6 @@
 {
   "name": "mogwai",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Object-to-graph mapper for Node.js using Gremlin in Mongoose style (very alpha work)",
   "main": "index.js",
   "scripts": {
@@ -26,7 +26,8 @@
   "dependencies": {
     "grex": "git://github.com/gulthor/grex.git#develop",
     "underscore": "~1.5.2",
-    "q": "~0.9.7"
+    "q": "~0.9.7",
+    "request": "~2.27.0"
   },
   "devDependencies": {
     "mocha": "~1.13.0",

@@ -1,9 +1,15 @@
 var Q = require("q");
 
-module.exports = TitanGraphClient = (function(){
-  function TitanGraphClient (base) {
-    this.base = base;
+var RexsterClient = require("./rexster");
+
+module.exports = TitanClient = (function(){
+  function TitanClient(base) {
+    RexsterClient.apply(this, arguments); // Call parent constructor
   }
+
+  // Inherit from RexsterClient
+  TitanClient.prototype = Object.create(RexsterClient.prototype);
+  TitanClient.prototype.constructor = TitanClient;
 
   /*
    * Asynchronously build Titan types, used for indexing
@@ -24,7 +30,7 @@ module.exports = TitanGraphClient = (function(){
    *
    * @param {Function} callback
    */
-  TitanGraphClient.prototype.createIndexes = function(callback) {
+  TitanClient.prototype.createIndexes = function(callback) {
     var self = this;
 
     this.getExistingTypes()
@@ -36,7 +42,7 @@ module.exports = TitanGraphClient = (function(){
       callback(null, success);
     })
     .fail(function(error) {
-      console.error("[Mogwai][TitanGraphClient] Error creating indexes");
+      console.error("[Mogwai][TitanClient] Error creating indexes");
       console.error(error);
       callback(error);
     });
@@ -47,7 +53,7 @@ module.exports = TitanGraphClient = (function(){
    *
    * @return {Promise}
    */
-  TitanGraphClient.prototype.getExistingTypes = function() {
+  TitanClient.prototype.getExistingTypes = function() {
     var g = this.base.connection.grex;
 
     return g.getIndexedKeys("Vertex.class");
@@ -63,12 +69,11 @@ module.exports = TitanGraphClient = (function(){
    *
    * @return {Promise} to create all keys
    */
-  TitanGraphClient.prototype.buildMakeKeyPromise = function(alreadyIndexedKeys) {
+  TitanClient.prototype.buildMakeKeyPromise = function(alreadyIndexedKeys) {
     var promises = [],
         g = this.base.connection.grex,
         models = this.base.models,
         schemaProperties,
-        propertyName,
         property, titanKey;
 
     // Make sure we index the Mogwai special $type key used for binding a model type to a vertex.
@@ -100,6 +105,6 @@ module.exports = TitanGraphClient = (function(){
   };
 
 
-  return TitanGraphClient;
+  return TitanClient;
 
 })();

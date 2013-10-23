@@ -1,9 +1,11 @@
 var Model = require("./model"),
-    __extends = require("./extends");
+    __extends = require("./extends"),
+    GroovyParser = require("./groovyparser");
 
 module.exports = ModelCompiler = (function() {
   function ModelCompiler(base) {
     this.base = base;
+    this.groovyParser = new GroovyParser();
   }
 
   /*
@@ -13,7 +15,7 @@ module.exports = ModelCompiler = (function() {
    *
    * @return {Constructor} of model
    */
-  ModelCompiler.prototype.compile = function(name, schema) {
+  ModelCompiler.prototype.compile = function(name, schema, groovyFileContent) {
     var self = this;
 
     model = (function (_super) {
@@ -37,27 +39,89 @@ module.exports = ModelCompiler = (function() {
     model.prototype.$type = model.$type = name.toLowerCase();
     model.prototype.schema = model.schema = schema;
 
+    // Define getters for grex and gremlin
     var g = {
       get: function() { return self.base.connection.grex; }
     };
     Object.defineProperty(model, "g", g);
     Object.defineProperty(model.prototype, "g", g);
 
-    // Add instance methods
-    for (var fnName in schema.methods) {
-      model.prototype[fnName] = schema.methods[fnName];
-    }
+    var gremlin = {
+      get: function() {
+        //todo: avoid bind() trick?
+        return self.base.client.gremlin.bind(self.base.client);
+      }
+    };
 
-    // Add class methods
-    for (var fnName in schema.statics) {
-      model[fnName] = schema.statics[fnName];
-    }
+    Object.defineProperty(model, "gremlin", gremlin);
+    Object.defineProperty(model.prototype, "gremlin", gremlin);
+
+    // Attach custom methods (schema methods first, then custom Groovy: avoid accidental replacements)
+    this.attachGroovyMethods(model, groovyFileContent);
+    this.attachSchemaMethods(model, schema);
 
     model.init();
 
     return model;
   };
 
+  /*
+   * Attach custom Schema static methods and instance methods to the model.
+   */
+  ModelCompiler.prototype.attachSchemaMethods = function(model, schema) {
+    var fnName;
+
+    for (fnName in schema.methods) {
+      model.prototype[fnName] = schema.methods[fnName];
+    }
+
+    // Add class methods
+    for (fnName in schema.statics) {
+      model[fnName] = schema.statics[fnName];
+    }
+  };
+
+  /*
+   * Attach Gremlin methods defined in a seperate .groovy files to the model
+   * as getters.
+   *
+   * @param {Model}
+   * @param {String}
+   */
+  ModelCompiler.prototype.attachGroovyMethods = function(model, groovyFileContent) {
+    var groovyFunctions = this.groovyParser.scan(groovyFileContent);
+    var fnName, fnBody;
+
+    for (fnName in groovyFunctions) {
+      fnBody = groovyFunctions[fnName];
+      Object.defineProperty(model, fnName, this.buildGroovyGetter(fnName, fnBody));
+    }
+  };
+
+  /*
+   * Build a custom getter property
+   */
+  ModelCompiler.prototype.buildGroovyGetter = function(name, body) {
+    var property = {
+      get: function() {
+        return function() {
+          var callback;
+          var lastArg = arguments[arguments.length-1];
+
+          if (typeof lastArg === "function") {
+            callback = lastArg;
+          } else {
+            callback = function() {};
+          }
+
+          // Send Gremlin script to the server for execution
+          this.gremlin(body, null, callback);
+        };
+      }
+    };
+
+    return property;
+  };
 
   return ModelCompiler;
 

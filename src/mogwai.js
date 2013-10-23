@@ -1,9 +1,13 @@
+var path = require("path"),
+    fs = require("fs");
+
 var Schema = require("./schema"),
     Model = require("./model"),
     Connection = require("./connection"),
     ModelCompiler = require("./modelcompiler"),
     EventEmitter = require("events").EventEmitter,
-    TitanClient = require("./clients/titan");
+    TitanClient = require("./clients/titan"),
+    Utils = require("./utils");
 
 
 module.exports = Mogwai = (function() {
@@ -17,6 +21,7 @@ module.exports = Mogwai = (function() {
     this.modelCompiler = new ModelCompiler(this);
 
     this.client = null;
+    this.settings = null;
     this.connection = new Connection(this);
 
     // Register events
@@ -36,17 +41,19 @@ module.exports = Mogwai = (function() {
 
 
   Mogwai.prototype.connect = function(settings, callback) {
-    this.buildClient(settings.client);
-    this.connection.open(settings, callback);
+    this.settings = settings;
+
+    this.buildClient();
+    this.connection.open(callback);
   };
 
 
-  Mogwai.prototype.buildClient = function(clientName) {
+  Mogwai.prototype.buildClient = function() {
     var clients = {
       titan: TitanClient
     };
 
-    this.client = new clients[clientName.toLowerCase()](this);
+    this.client = new clients[this.settings.client.toLowerCase()](this);
   };
 
 
@@ -79,6 +86,23 @@ module.exports = Mogwai = (function() {
     return this.models[modelName];
   };
 
+  /*
+   * Check for the existence of a .groovy file associated to a model, and
+   * return its content if present.
+   */
+  Mogwai.prototype.readGroovyFile = function(caller, modelName) {
+    // Read groovy file content if present
+    var fileName = path.basename(caller, path.extname(caller));
+    var groovyFilePath = path.dirname(caller)+"/"+fileName+".groovy";
+    var groovyFile;
+
+    if (fs.existsSync(groovyFilePath)) {
+      console.log("Found Gremlin .groovy file for "+ modelName +" Schema");
+      groovyFile = fs.readFileSync(groovyFilePath, "utf8");
+
+      return groovyFile;
+    }
+  };
 
   /*
    * Define a model, or retrieve it
@@ -88,10 +112,11 @@ module.exports = Mogwai = (function() {
       return this.getModel(modelName);
     }
 
+    // Add schema to Mogwai and compile Model
     this.registerSchema(modelName, schema);
 
-    // Compile and add model to Mogwai
-    model = this.modelCompiler.compile(modelName, schema);
+    var groovyFile = this.readGroovyFile(Utils.getCaller().id, modelName);
+    model = this.modelCompiler.compile(modelName, schema, groovyFile);
     this.addModel(modelName, model);
 
     return this.getModel(modelName);
