@@ -1,13 +1,13 @@
 mogwai
 ======
 
-Object-to-graph mapper for Node.js using Gremlin, (currently) in Mongoose style.
+Object-to-graph mapper for Node.js which speaks Gremlin (and also reads .groovy files).
 
 Mogwai tries to abstract interaction with any [Tinkerpop](http://www.tinkerpop.com/)'s [Blueprints](https://github.com/tinkerpop/blueprints/wiki) compliant Graph databases (ie. TitanDB, Neo4J, OrientDB, FoundationDB, etc.).
 
-Mogwai internally uses [grex](https://github.com/entrendipity/grex), a "Gremlin inspired Rexster Graph Server client", and therefore communicates with the database via HTTP.
+Mogwai sends Gremlin queries via HTTP directly to a Rexster server with the Gremlin extension enabled. Note that Mogwai also internally uses some features from [grex](https://github.com/entrendipity/grex), a "Gremlin inspired Rexster Graph Server client" (so you need to configure Batch kibble as well). Mogwai also aims to be ready for [changes coming next year with Tinkerpop 3.0](https://github.com/tinkerpop/tinkerpop3/wiki#extensions-and-kibbles). Mogwai may support Rexpro in the future.
 
-Note that Mogwai is currently developed with [TitanDB](http://thinkaurelius.github.io/titan/) v0.3.2 only, and hasn't been tested with other databases. Although most features should work, expect some of them to not work at all (ie. the still partially supported indexes).
+**Note that Mogwai is currently developed with [TitanDB](http://thinkaurelius.github.io/titan/) v0.4.0 only, and hasn't been tested with other Tinkerpop/Rexster compliant databases**. Although most features should work, expect some of them to not work at all (ie. the still partially supported indexes). Feel free to fork and send a pull request (see `/src/clients` if you wish to tweak client classes).
 
 Comments, suggestions and pull requests are welcome.
 
@@ -25,14 +25,17 @@ or, should you wish to add mogwai as a dependency in your package.json file as w
 Please refer to [grex's documentation](https://github.com/entrendipity/grex/blob/master/README.md) first on how to set up your Graph database/Rexster server (ie. you will have to install Gremlin and Batch kibbles).
 
 
-Usage
-=====
+Introduction
+============
 
-Mogwai's API is currently very close to Mongoose ([see Mongoose documentation](https://github.com/LearnBoost/mongoose/)), a MongoDB modeling library for Node.js. Hence, some method names in Mogwai are very inspired by MongoDB's method (ie. `findOne`, `findById`, etc.).
+Mogwai's API is currently inspired by two libraries:
 
-Please be aware that Mogwai is in active development, so changes breaking backward compatibility are very likely to occur as this project evolves to a more mature/stable API (possibly diverging from Mongoose).
+* Mongoose ([see documentation](https://github.com/LearnBoost/mongoose/)), a MongoDB modeling library for Node.js, especially for the general design of the library (Schema, Models, plugins, etc.). Hence, some method names in Mogwai are very inspired by MongoDB's method (ie. `findOne`, `findById`, etc.).
+* Bulbflow ([see Github repo](https://github.com/espeed/bulbs/)), "a Python persistence framework for graph databases", especially for all stuff related to loading Gremlin scripts defined in .groovy files.
 
-Mogwai is not considered stable and should not be used in production, but merely for prototyping.
+Please be aware that Mogwai is in active development, so changes breaking backward compatibility are very likely to occur as this project evolves to a more mature/stable API.
+
+Mogwai is not considered stable and should not be used in production. Use at your own risk.
 
 
 # Usage #
@@ -46,10 +49,11 @@ var mogwai = require("mogwai");
 var settings = {
   host: "localhost",
   port: 8182,
-  graph: "graph"
+  graph: "graph",
+  client: "titan" // Currently the only supported client
 };
 
-// mogwai.connect() is just a wrapper around grex.connect()
+// mogwai.connect() is basically a wrapper around grex.connect()
 mogwai.connect(settings, function(err, connection) {
   // Start here...
 });
@@ -63,14 +67,32 @@ mogwai.connect(settings, function(err, connection) {
 
 Schemas compile into Models which are used to perform CRUD operations on your data.
 
+Models internally manipulate vertices and edges in the graph database.
+
 ```javascript
-var mogwai = require("mogwai");
+// This will internally be saved as a Vertex with a 'name' key of type 'String'
 
 UserSchema = new mogwai.Schema(
-  name:
-    type: String  // Types are currently ignored
-    index: true   // Partially supported
+  name: String
 );
+
+```
+
+Alternatively, you can define properties this way, and add more options:
+
+```javascript
+UserSchema = new mogwai.Schema(
+  name:
+    type: String  // Only 'String' is supported for now
+    index: true   // Should work with Titan v0.4.0
+    unique: true  // Should work with Titan v0.4.0
+);
+
+```
+
+
+### Adding methods ###
+```javascript
 
 UserSchema.statics.findByName = function(name, callback) {
   this.findOne({
@@ -87,6 +109,33 @@ UserSchema.methods.edit = function(data, callback) {
 // Compiles schema into a model of type 'user'
 module.exports = mogwai.model("User", UserSchema);
 ```
+
+
+### Defining methods in a seperate .groovy file ###
+
+Mogwai allows you to optionally define Gremlin scripts in a seperate .groovy file so you can enjoy syntax highlighting in your favorite editor.
+
+Simply create a .groovy file in the same folder as your schema file, and give it the same name (ie add `user.groovy` in the same folder as `user.js`).
+
+All functions defined in that .groovy file will be loaded and automatically attached to the model. These methods can then be called asynchronously in JavaScript (simply pass a callback as last parameter).
+
+Suppose the following `user.groovy` file next to the User schema defined in `user.js`:
+
+```groovy
+def findLatestRegisteredUser() {
+  g.V("$type", "user").order({it.b <=> it.a})[0..<10]
+}
+```
+
+You will be able to call the following JavaScript:
+
+```javascript
+Users.findLatestRegistered(function(err, result) {
+  // Handle response
+})
+```
+
+Note that this feature is very experimental and does not support passing parameters (yet).
 
 
 ### Schema plugins ###
@@ -209,7 +258,7 @@ TODO
 
 Features
 
-  * Indexes
+  * More work on indexes
   * Validation
   * Hooks (pre and post middlewares)
   * Getters and setters

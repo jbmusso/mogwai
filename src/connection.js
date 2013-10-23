@@ -12,10 +12,10 @@ module.exports = Connection = (function() {
   Connection.prototype = Object.create(EventEmitter.prototype);
 
 
-  Connection.prototype.open = function(settings, callback) {
+  Connection.prototype.open = function(callback) {
     var self = this;
 
-    grex.connect(settings)
+    grex.connect(this.base.settings)
     .then(function (graphDB) {
       self.grex = graphDB;
       self.emit("open");
