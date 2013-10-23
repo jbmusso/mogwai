@@ -111,9 +111,9 @@ module.exports = mogwai.model("User", UserSchema);
 ```
 
 
-### Defining methods in a seperate .groovy file ###
+### Defining methods in a separate .groovy file ###
 
-Mogwai allows you to optionally define Gremlin scripts in a seperate .groovy file so you can enjoy syntax highlighting in your favorite editor.
+Mogwai allows you to optionally define Gremlin scripts in a separate .groovy file so you can enjoy syntax highlighting in your favorite editor.
 
 Simply create a .groovy file in the same folder as your schema file, and give it the same name (ie add `user.groovy` in the same folder as `user.js`).
 
