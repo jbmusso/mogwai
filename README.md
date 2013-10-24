@@ -243,6 +243,39 @@ User.delete(4, function(error, result) {
 gRex query: `g.removeVertex(g.v(id))`
 
 
+## Query ##
+
+The default behavior for executing a Gremlin query is to return graph elements fetched from the database as proper Mogwai model instances.
+
+### Fetching graph elements as models ###
+
+```javascript
+User.gremlin("g.V("$type", "user")", function(err, elements) {
+ // 'elements' is an array of instantiated model of type 'user'
+});
+```
+
+Note that passing a callback as last parameter is equivalent to chaining `.query():
+
+```javascript
+User.gremlin("g.V("$type", "user")").query(function(err, elements) {
+  // 'elements' ...
+});
+```
+
+### Fetching elements as raw JavaScript objects ###
+
+If you wish to retrieve results as raw elements (ie. not instantiated as models), use the following:
+
+```javascript
+User.gremlin("g.V("$type", "user")").execute(function(err, results) {
+  // 'results' is an array of raw graph elements
+});
+```
+
+Note that this also works with custom Gremlin queries defined in .groovy files bound to your Schema.
+
+
 Tests
 =====
 Install development dependencies
