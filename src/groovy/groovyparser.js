@@ -1,4 +1,4 @@
-Utils = require("./utils");
+Utils = require("../utils");
 
 module.exports = GroovyParser = (function () {
 
