@@ -65,6 +65,11 @@ module.exports = RexsterClient = (function(){
   RexsterClient.prototype.gremlin = function(script, params, callback) {
     var gremlin = new Gremlin(this, script, params);
 
+    if (typeof params === "function") {
+      callback = params;
+      params = null;
+    }
+
     if (typeof callback === "function") {
       // Will return initialized elements by default
       return gremlin.query(callback);
