@@ -1,6 +1,7 @@
 var request = require("request");
 
-var Client = require("../client");
+var Client = require("../client"),
+    Gremlin = require("../gremlin");
 
 module.exports = RexsterClient = (function(){
   function RexsterClient(base) {
@@ -10,8 +11,6 @@ module.exports = RexsterClient = (function(){
   // Inherit from Client
   RexsterClient.prototype = Object.create(Client.prototype);
   RexsterClient.prototype.constructor = RexsterClient;
-
-
 
   /*
    * Sends a request to the server for execution, and returns the response.
@@ -52,8 +51,33 @@ module.exports = RexsterClient = (function(){
   /*
    * Sends a Gremlin request to the server for execution, and returns the
    * response.
+   * - Will return initialized graph element (ie as models) by default.
+   * - If no callback is present, returns a Gremlin instance which allows the
+   * used to either call execute() or query()
+   *
+   * Basically, supplying a callback as last parameter is equivalent to not
+   * passing a callback, and calling .query() on the result.
+   *
+   * @param {String} gremlin script to execute
+   * @param {Object} parameters to pass to the gremlin script
+   * @param {Function} an optional callback
    */
   RexsterClient.prototype.gremlin = function(script, params, callback) {
+    var gremlin = new Gremlin(this, script, params);
+
+    if (typeof callback === "function") {
+      // Will return initialized elements by default
+      return gremlin.query(callback);
+    } else {
+      // Allow the user to call execute() or query()
+      return gremlin;
+    }
+  };
+
+  /*
+   * Shortcut for sending a Gremlin query to the server for execution.
+   */
+  RexsterClient.prototype.requestGremlin = function(script, params, callback) {
     this.request("/tp/gremlin", script, params, callback);
   };
 
