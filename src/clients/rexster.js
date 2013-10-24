@@ -1,6 +1,7 @@
 var request = require("request");
 
-var Client = require("../client");
+var Client = require("../client"),
+    Gremlin = require("../gremlin");
 
 module.exports = RexsterClient = (function(){
   function RexsterClient(base) {
@@ -10,8 +11,6 @@ module.exports = RexsterClient = (function(){
   // Inherit from Client
   RexsterClient.prototype = Object.create(Client.prototype);
   RexsterClient.prototype.constructor = RexsterClient;
-
-
 
   /*
    * Sends a request to the server for execution, and returns the response.
@@ -54,7 +53,11 @@ module.exports = RexsterClient = (function(){
    * response.
    */
   RexsterClient.prototype.gremlin = function(script, params, callback) {
-    this.request("/tp/gremlin", script, params, callback);
+    if (typeof callback !== "function") {
+      return new Gremlin(this, script, params);
+    } else {
+      this.request("/tp/gremlin", script, params, callback);
+    }
   };
 
   return RexsterClient;

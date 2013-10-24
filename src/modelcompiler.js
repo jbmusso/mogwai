@@ -110,12 +110,10 @@ module.exports = ModelCompiler = (function() {
 
           if (typeof lastArg === "function") {
             callback = lastArg;
-          } else {
-            callback = function() {};
           }
 
           // Send Gremlin script to the server for execution
-          this.gremlin(body, null, callback);
+          return this.gremlin(body, null, callback);
         };
       }
     };

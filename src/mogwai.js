@@ -7,8 +7,8 @@ var Schema = require("./schema"),
     ModelCompiler = require("./modelcompiler"),
     EventEmitter = require("events").EventEmitter,
     TitanClient = require("./clients/titan"),
-    Utils = require("./utils");
-
+    Utils = require("./utils"),
+    ElementInitializer = require("./elementinitializer");
 
 module.exports = Mogwai = (function() {
 
@@ -19,6 +19,7 @@ module.exports = Mogwai = (function() {
     this.schemas = {};
     this.models = {};
     this.modelCompiler = new ModelCompiler(this);
+    this.elementInitializer = new ElementInitializer(this);
 
     this.client = null;
     this.settings = null;
@@ -86,6 +87,10 @@ module.exports = Mogwai = (function() {
     return this.models[modelName];
   };
 
+  Mogwai.prototype.hasModel = function(modelName) {
+    return this.models.hasOwnProperty(modelName);
+  };
+
   /*
    * Check for the existence of a .groovy file associated to a model, and
    * return its content if present.
@@ -108,6 +113,8 @@ module.exports = Mogwai = (function() {
    * Define a model, or retrieve it
    */
   Mogwai.prototype.model = function(modelName, schema) {
+    modelName = modelName.toLowerCase();
+
     if (this.hasSchema(modelName)) {
       return this.getModel(modelName);
     }
