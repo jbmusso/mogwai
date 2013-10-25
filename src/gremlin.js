@@ -15,7 +15,7 @@ module.exports = (function () {
    * Return the full raw response from Rexster
    */
   Gremlin.prototype.execute = function(callback) {
-    this.client.requestGremlin(this.script, this.params, callback);
+    this.client.executeGremlin(this.script, this.params, callback);
   };
 
   /*
@@ -25,7 +25,7 @@ module.exports = (function () {
   Gremlin.prototype.query = function(callback) {
     var initializer = this.client.base.elementInitializer;
 
-    this.client.requestGremlin(this.script, this.params, function(err, body) {
+    this.client.executeGremlin(this.script, this.params, function(err, body) {
       var elements = initializer.initElements(body);
 
       return callback(null, elements);

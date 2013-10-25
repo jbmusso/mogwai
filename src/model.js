@@ -19,7 +19,6 @@ module.exports = Model = (function() {
     });
   };
 
-
   /*
    * Insert a document, or update if already present (checks the vertex _id)
    */
@@ -33,41 +32,41 @@ module.exports = Model = (function() {
     }
   };
 
-
   /*
-    Update current Vertex
-  */
+   * Update current Vertex properties
+   */
   Model.prototype.update = function(callback) {
-    var update,
-        properties = [];
+    var properties = [],
+        property,
+        propertyValue;
 
-    // Build sideEffect update property query
-    update = "{";
+    // Build property map, escape special chars
+    var m = "m = [", gremlin;
     for (var propertyName in this.schema.properties) {
-      properties.push('it.'+ propertyName +'="'+ this[propertyName] +'"');
+      propertyValue = this[propertyName];
+      propertyValue = propertyValue.replace(/\'/g, "\\'");
+      propertyValue = propertyValue.replace(/\"/g, "\\\"");
+
+      property = propertyName +":'"+ propertyValue +"'";
+      properties.push(property);
     }
-    update += properties.join("; ");
-    update = update.replace(/\$/g, "\\$"); // Escape dollar sign
-    update += "}";
+    m += properties.join(", ");
+    m += "]\n";
 
-    // SECURITY WARNING/TODO: The following query *IS* badly vulnerable to a Gremlin 'SQL' injection attack, allowing arbitrary fields to be set. Do not use in production!
-    // TODO: fix encoding bug
-    var query = this.g.v(this._id)._().sideEffect(update);
+    // Update vertex properties from map
+    gremlin = m + "m.each{g.v("+this._id+").setProperty(it.key, it.value)}";
 
-    return this.exec(query, callback);
+    return this.gremlin(gremlin).execute(callback);
   };
 
-
   /*
-    Insert a new Model with given doc properties
-  */
+   * Insert a new Model with given doc properties
+   */
   Model.prototype.insert = function(callback) {
     var doc,
         transaction,
         property,
         properties = this.schema.properties;
-
-    console.log("Inserting Model...");
 
     doc = this;
     doc.$type = this.$type;
@@ -79,10 +78,8 @@ module.exports = Model = (function() {
       property = properties[name];
 
       if (property.isIndexed()) {
-        // console.log("-", property.name, "(i) =", this.name);
         v.addProperty(name, this[property.name]);
       } else {
-        // console.log("-", property.name, " =", this.name);
         v.setProperty(name, this[property.name]);
       }
     }
@@ -105,92 +102,60 @@ module.exports = Model = (function() {
 
 
   /*
-    Executes a Gremlin (grex) query, and return results as raw documents or models.
-
-    TODO: improve performance when fetching only one document (check condition and remove loop).
-
-    @param grexQuery {Function} grex query to execute
-    @param asModel {Boolean} Whether retrieve each document as raw document or as a model instance (defaults to true)
+   * Execute a Gremin query, return results as raw model instances or raw
+   * elements
+   *
+   * @param gremlinQuery {String} Gremlin query to execute
+   * @param asModel {Boolean} Indicate if the data should be retrieved as a
+   * model instances (true) or as a raw graph elements (false).
   */
-  Model.find = function(grexQuery, asModel, callback) {
-    if (typeof grexQuery !== "object" || typeof grexQuery === null) {
-      return callback("You must provide a valid Gremlin query");
-    }
-
-    console.log("Grex:", grexQuery.params);
+  Model.find = function(gremlinQuery, asModel, callback) {
     if (typeof asModel === "function") {
       callback = asModel;
       asModel = true;
     }
 
-    var self = this;
-
-    grexQuery
-    .then(function(success) {
-      if (success.results.length === 0 ) {
-        return callback(null, null);
-      }
-
-      if (!asModel) {
-        // Return raw results
-        return callback(null, success.results);
-      }
-
-      // Return all vertices/documents as model instances
-      var doc, key, result, results = [];
-      for (var i = 0, _len = success.results.length; i < _len; i++) {
-        result = success.results[i];
-        doc = new self();
-        for (key in result) {
-          doc[key] = result[key];
-        }
-        results.push(doc);
-      }
-
-      return callback(null, results);
-    })
-    .fail(function(err) {
-      return callback(err);
-    });
+    if (asModel === true) {
+      return this.gremlin(gremlinQuery, callback);
+    } else {
+      return this.gremlin(gremlinQuery).execute(callback);
+    }
   };
 
-
   /*
-    Find a Vertex by name
-  */
+   * Find a Vertex by name
+   */
   Model.findOne = function(property, callback) {
     var key = Object.keys(property)[0];
-    var query = this.g.V(key, property[key]).index(0);
+    var gremlinQuery = "g.V('"+ key +"', '"+ property[key] +"')[0]";
 
-    this.find(query, function(err, results) {
+    this.find(gremlinQuery, function(err, results) {
       return callback(err, results[0]);
     });
   };
 
-
   /*
-    Find a Vertex by ID
-  */
+   * Find a Vertex by ID
+   *
+   * @param id {Number}
+   */
   Model.findById = function(id, callback) {
-    var query = this.g.v(id);
+    var gremlinQuery = "g.v("+ id +")";
 
-    this.find(query, function(err, results) {
+    this.find(gremlinQuery, function(err, results) {
       return callback(err, results[0]);
     });
   };
 
-
   /*
-    Delete a Vertex by ID.
-  */
+   * Delete a Vertex by ID.
+   *
+   * @param id {Number}
+   */
   Model.delete = function(id, callback) {
-    this.g.removeVertex(g.v(id))
-    .then(function(result) {
-      return callback(null, result);
-    })
-    .fail(function(err) {
-      return callback(err);
-    });
+    var gremlinQuery = "g.removeVertex(g.v("+ id +"))";
+
+    this.gremlin(gremlinQuery).execute(callback);
   };
 
 
