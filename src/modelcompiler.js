@@ -9,12 +9,15 @@ module.exports = ModelCompiler = (function() {
     this.groovyParser = new GroovyParser();
   }
 
-  /*
+  /**
    * Dynamically build an instantiable Model class from a Schema
    *
    * @inspiredBy: https://github.com/LearnBoost/mongoose/blob/a04860f30f03c44029ea64ec2b08e723e6baf899/lib/model.js#L2454
    *
-   * @return {Constructor} of model
+   * @param {String} name - name of the model
+   * @param {Schema} schema - Schema defining the model
+   * @param {String} groovyFileContent - Content of a Groovy file
+   * @return {Function} - Model constructor
    */
   ModelCompiler.prototype.compile = function(name, schema, groovyFileContent) {
     var self = this;
@@ -31,7 +34,6 @@ module.exports = ModelCompiler = (function() {
 
     })(Model);
 
-    // Add grex getter to model
     model.prototype.base = model.base = self.base;
     model.prototype.connection = model.connection = self.base.connection; //todo: replace by a getter?
 
@@ -40,13 +42,14 @@ module.exports = ModelCompiler = (function() {
     model.prototype.$type = model.$type = name.toLowerCase();
     model.prototype.schema = model.schema = schema;
 
-    // Define getters for grex and gremlin
+    // Define grex getter
     var g = {
       get: function() { return self.base.connection.grex; }
     };
     Object.defineProperty(model, "g", g);
     Object.defineProperty(model.prototype, "g", g);
 
+    // Define Gremlin getter
     var gremlin = {
       get: function() {
         //todo: avoid bind() trick?
@@ -58,20 +61,24 @@ module.exports = ModelCompiler = (function() {
     Object.defineProperty(model.prototype, "gremlin", gremlin);
 
     // Attach custom methods (schema methods first, then custom Groovy: avoid accidental replacements)
-    this.attachGroovyMethods(model, groovyFileContent);
-    this.attachSchemaMethods(model, schema);
+    this.attachGroovyFunctions(model, groovyFileContent);
+    this.attachSchemaFunctions(model, schema);
 
     model.init();
 
     return model;
   };
 
-  /*
+  /**
    * Attach custom Schema static methods and instance methods to the model.
+   *
+   * @param {Model} model
+   * @param {Schema} schema
    */
-  ModelCompiler.prototype.attachSchemaMethods = function(model, schema) {
+  ModelCompiler.prototype.attachSchemaFunctions = function(model, schema) {
     var fnName;
 
+    // Add instance methods
     for (fnName in schema.methods) {
       model.prototype[fnName] = schema.methods[fnName];
     }
@@ -82,35 +89,46 @@ module.exports = ModelCompiler = (function() {
     }
   };
 
-  /*
+  /**
    * Attach Gremlin methods defined in a seperate .groovy files to the model
    * as getters.
    *
-   * @param {Model}
-   * @param {String}
+   * @param {Model} model
+   * @param {String} groovyFileContent
    */
-  ModelCompiler.prototype.attachGroovyMethods = function(model, groovyFileContent) {
+  ModelCompiler.prototype.attachGroovyFunctions = function(model, groovyFileContent) {
     var groovyFunctions = this.groovyParser.scan(groovyFileContent);
-    var fnName, fnBody;
+    var fnName, fnBody, groovyFunctionGetter;
 
     for (fnName in groovyFunctions) {
       fnBody = groovyFunctions[fnName];
-      Object.defineProperty(model, fnName, this.attachGroovyFunction(fnName, fnBody));
+      groovyFunctionGetter = ModelCompiler.defineGroovyFunctionGetter(fnBody);
+
+      Object.defineProperty(model, fnName, groovyFunctionGetter);
     }
   };
 
   /*
-   * Build a custom getter property
+   * Build a getter for a given GroovyScript
+   *
+   * @param {GroovyScript}
    */
-  ModelCompiler.prototype.attachGroovyFunction = function(name, groovyScript) {
-    var property = {
+  ModelCompiler.defineGroovyFunctionGetter = function(groovyScript) {
+    var groovyGetter = {
       get: function() {
         return function() {
           // Get optional callback as last parameter)
           var callback = _.last(arguments);
 
-          // Handle the special behavior of _.initial() when the only supplied argument (= the first argument) *is NOT* a callback.
-          // Indeed, _.initial() will return nothing when arguments.length === 1. This ultimately causes no parameters to be passed over to the Groovy function: because the first element is also the last one, it just gets stripped. This is an expected behavior of _.initial().
+          // Handle the special behavior of _.initial() when the only supplied
+          // argument (= the first argument) *is NOT* a callback. Indeed:
+          // _.initial() will return nothing when arguments.length === 1.
+          //
+          // This ultimately causes no parameters to be passed over to the
+          // Groovy function: because the first element is also the last one,
+          // it just gets stripped.
+          //
+          // This is an expected behavior of _.initial().
           if (arguments.length === 1 && typeof arguments[0] !== "function" ) {
             params = arguments;
           } else {
@@ -122,7 +140,7 @@ module.exports = ModelCompiler = (function() {
       }
     };
 
-    return property;
+    return groovyGetter;
   };
 
   return ModelCompiler;
