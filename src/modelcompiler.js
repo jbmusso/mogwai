@@ -1,6 +1,7 @@
-var Model = require("./model"),
+var _ = require("underscore"),
+    Model = require("./model"),
     __extends = require("./extends"),
-    GroovyParser = require("./groovyparser");
+    GroovyParser = require("./groovy/groovyparser");
 
 module.exports = ModelCompiler = (function() {
   function ModelCompiler(base) {
@@ -94,26 +95,29 @@ module.exports = ModelCompiler = (function() {
 
     for (fnName in groovyFunctions) {
       fnBody = groovyFunctions[fnName];
-      Object.defineProperty(model, fnName, this.buildGroovyGetter(fnName, fnBody));
+      Object.defineProperty(model, fnName, this.attachGroovyFunction(fnName, fnBody));
     }
   };
 
   /*
    * Build a custom getter property
    */
-  ModelCompiler.prototype.buildGroovyGetter = function(name, body) {
+  ModelCompiler.prototype.attachGroovyFunction = function(name, groovyScript) {
     var property = {
       get: function() {
         return function() {
-          var callback;
-          var lastArg = arguments[arguments.length-1];
+          // Get optional callback as last parameter)
+          var callback = _.last(arguments);
 
-          if (typeof lastArg === "function") {
-            callback = lastArg;
+          // Handle the special behavior of _.initial() when the only supplied argument (= the first argument) *is NOT* a callback.
+          // Indeed, _.initial() will return nothing when arguments.length === 1. This ultimately causes no parameters to be passed over to the Groovy function: because the first element is also the last one, it just gets stripped. This is an expected behavior of _.initial().
+          if (arguments.length === 1 && typeof arguments[0] !== "function" ) {
+            params = arguments;
+          } else {
+            params = _.initial(arguments);
           }
 
-          // Send Gremlin script to the server for execution
-          return this.gremlin(body, null, callback);
+          return this.gremlin(groovyScript, params, callback);
         };
       }
     };

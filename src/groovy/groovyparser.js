@@ -1,119 +1,60 @@
-Utils = require("../utils");
+var Utils = require("../utils");
+var GroovyFunction = require("./groovyfunction");
 
 module.exports = GroovyParser = (function () {
 
   function GroovyParser() {
   }
 
-  /*
+  /**
    * Parse a .groovy file and return an object mapping each groovy function
    * name to its definition.
    *
-   * @param {String} raw content of a .groovy file
-   * @return {Object} map of Groovy function names with their respective
-   * definition.
+   * @param {String} fileContent - raw content of a .groovy file
+   * @return {Object} - map of GroovyFunction
    */
   GroovyParser.prototype.scan = function(fileContent) {
-    var line;
-
-    methodsContainer = {};
+    var line,
+        functionsContainer = {};
 
     fileContent = fileContent.split("\n");
+
     for (var i = 0; i < fileContent.length; i++) {
       line = fileContent[i];
-      this.parseLine(fileContent, line, methodsContainer);
+      this.parseLine(fileContent, line, functionsContainer);
     }
 
-    return methodsContainer;
+    return functionsContainer;
   };
 
-  GroovyParser.prototype.parseLine = function(fileContent, line, methodsContainer) {
+  /**
+   * Parse a Groovy file line
+   *
+   * @param {Array} fileContent - array of Groovy lines
+   * @param {String} line - Groovy file line
+   * @param {Object} functionsContainer - Object to store all functions into
+   */
+  GroovyParser.prototype.parseLine = function(fileContent, line, functionsContainer) {
+    var groovyFunction;
+
     if (this.isStartDefLine(line)) {
-      // Multiline definition
-      methodSignature = this.getMethodSignature(line);
-      methodName = this.getMethodName(methodSignature);
+      groovyFunction = new GroovyFunction();
+      groovyFunction.setSignature(line);
+      groovyFunction.setDefinition(fileContent, line);
 
-      methodDefinition = this.getMultineLineDefinition(fileContent, line);
-      methodDefinition = methodDefinition.join("");
-
-      methodsContainer[methodName] = methodDefinition;
+      functionsContainer[groovyFunction.getName()] = groovyFunction;
     }
-
   };
 
-  /*
+  /**
    * Check if line is the start of a function definition
    *
-   * @param {String} groovy file line
-   * @return {Boolean}
+   * @param {String} line - Groovy file line
+   * @return {Boolean} - Whether the line is a def starting line or not
    */
   GroovyParser.prototype.isStartDefLine = function(line) {
     var re = /^def( .*)/;
     return re.test(line);
-  };
-
-  /*
-   * Check if line is the end of a function definition
-   *
-   * @param {String} groovy file line
-   * @return {Boolean}
-   */
-  GroovyParser.prototype.isEndDefLine = function(line) {
-    var re = /^}/;
-    return re.test(line);
-  };
-
-  /*
-   * Get a Groovy function definition spanning over multiple lines
-   *
-   * @param {String} content of groovy file
-   * @param {String} first line of function in file
-   * @return {String} inner content of the function, without first line
-   * (signature) and last line (closing brace).
-   */
-  GroovyParser.prototype.getMultineLineDefinition = function(fileContent, line) {
-    var startLine = fileContent.indexOf(line);
-    var currentLine;
-    var content = [];
-
-    for (var i = startLine + 1; i < fileContent.length; i++) {
-      currentLine = fileContent[i];
-      if (this.isEndDefLine(currentLine)) {
-        // Reached end of Groovy function definition, don't push last line (closing brace)
-        break;
-      }
-
-      content.push(currentLine);
-    }
-
-    return content;
-
-  };
-
-  /*
-   * Get the signature of a Groovy function from its first line. Ie.
-   *    def fooBar(baz) {
-   * will return:
-   *    fooBar(baz)
-   */
-  GroovyParser.prototype.getMethodSignature = function(methodDefinition) {
-    var re = /^def(.*)( +){/;
-    var methodSignature = methodDefinition.match(re)[1].trim();
-
-    return methodSignature;
-  };
-
-  /*
-   * Get the name of a Groovy function from its signature. Ie.
-   *    fooBar(baz)
-   * will return:
-   *    fooBar
-   */
-  GroovyParser.prototype.getMethodName = function(methodSignature) {
-    var re = /^(.*)\(/;
-    var methodName = methodSignature.match(re)[1].trim();
-
-    return methodName;
   };
 
 
