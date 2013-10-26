@@ -2,8 +2,8 @@ var _ = require("underscore");
 
 
 module.exports = (function () {
-  function ElementInitializer(base) {
-    this.base = base;
+  function ElementInitializer(mogwai) {
+    this.mogwai = mogwai;
   }
 
   ElementInitializer.prototype.initElements = function(responseBody) {
@@ -29,8 +29,8 @@ module.exports = (function () {
   ElementInitializer.prototype.initElement = function(rawElement) {
     var element, elementClass;
 
-    if (this.base.hasModel(rawElement.$type)) {
-      elementClass = this.base.getModel(rawElement.$type);
+    if (this.mogwai.hasModel(rawElement.$type)) {
+      elementClass = this.mogwai.getModel(rawElement.$type);
       element = new elementClass();
       _.extend(element, rawElement);
       return element;

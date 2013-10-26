@@ -3,8 +3,8 @@ var grex = require("grex"),
 
 module.exports = Connection = (function() {
 
-  function Connection(base) {
-    this.base = base;
+  function Connection(mogwai) {
+    this.mogwai = mogwai;
     this.grex = null;
   }
 
@@ -15,7 +15,7 @@ module.exports = Connection = (function() {
   Connection.prototype.open = function(callback) {
     var self = this;
 
-    grex.connect(this.base.settings)
+    grex.connect(this.mogwai.settings)
     .then(function (graphDB) {
       self.grex = graphDB;
       self.emit("open");

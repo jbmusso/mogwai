@@ -1,7 +1,7 @@
 module.exports = Client = (function () {
 
-  function Client(base) {
-    this.base = base;
+  function Client(mogwai) {
+    this.mogwai = mogwai;
 
   }
 

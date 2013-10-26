@@ -3,7 +3,7 @@ var Q = require("q");
 var RexsterClient = require("./rexster");
 
 module.exports = TitanClient = (function(){
-  function TitanClient(base) {
+  function TitanClient(mogwai) {
     RexsterClient.apply(this, arguments); // Call parent constructor
   }
 
@@ -54,7 +54,7 @@ module.exports = TitanClient = (function(){
    * @return {Promise}
    */
   TitanClient.prototype.getExistingTypes = function() {
-    var g = this.base.connection.grex;
+    var g = this.mogwai.connection.grex;
 
     return g.getIndexedKeys("Vertex.class");
   };
@@ -71,8 +71,8 @@ module.exports = TitanClient = (function(){
    */
   TitanClient.prototype.buildMakeKeyPromise = function(alreadyIndexedKeys) {
     var promises = [],
-        g = this.base.connection.grex,
-        models = this.base.models,
+        g = this.mogwai.connection.grex,
+        models = this.mogwai.models,
         schemaProperties,
         property, titanKey;
 

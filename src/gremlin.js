@@ -23,7 +23,7 @@ module.exports = (function () {
    * with the appropriate model if available.
    */
   Gremlin.prototype.query = function(callback) {
-    var initializer = this.client.base.elementInitializer;
+    var initializer = this.client.mogwai.elementInitializer;
 
     this.client.executeGremlin(this.script, this.params, function(err, body) {
       var elements = initializer.initElements(body);

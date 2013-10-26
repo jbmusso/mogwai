@@ -5,7 +5,7 @@ var Client = require("../client"),
     GroovyScript = require("../groovy/groovyscript");
 
 module.exports = RexsterClient = (function(){
-  function RexsterClient(base) {
+  function RexsterClient(mogwai) {
     Client.apply(this, arguments); // Call parent constructor
   }
 
@@ -30,7 +30,7 @@ module.exports = RexsterClient = (function(){
       return callback(new Error("Script must be an instance of GroovyScript"));
     }
 
-    var settings = this.base.settings;
+    var settings = this.mogwai.settings;
     var url = "http://"+ settings.host +":"+ settings.port +"/graphs/"+ settings.graph + path;
 
     var options = {

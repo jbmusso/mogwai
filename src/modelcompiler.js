@@ -4,8 +4,8 @@ var _ = require("underscore"),
     GroovyParser = require("./groovy/groovyparser");
 
 module.exports = ModelCompiler = (function() {
-  function ModelCompiler(base) {
-    this.base = base;
+  function ModelCompiler(mogwai) {
+    this.mogwai = mogwai;
     this.groovyParser = new GroovyParser();
   }
 
@@ -34,8 +34,8 @@ module.exports = ModelCompiler = (function() {
 
     })(Model);
 
-    model.prototype.base = model.base = self.base;
-    model.prototype.connection = model.connection = self.base.connection; //todo: replace by a getter?
+    model.prototype.mogwai = model.mogwai = self.mogwai;
+    model.prototype.connection = model.connection = self.mogwai.connection; //todo: replace by a getter?
 
     // Define a special $type key used to identify vertices by type in the graph.
     // Note that this special "Mogwai" key/property is currently automatically indexed in the graph.
@@ -44,7 +44,7 @@ module.exports = ModelCompiler = (function() {
 
     // Define grex getter
     var g = {
-      get: function() { return self.base.connection.grex; }
+      get: function() { return self.mogwai.connection.grex; }
     };
     Object.defineProperty(model, "g", g);
     Object.defineProperty(model.prototype, "g", g);
@@ -53,7 +53,7 @@ module.exports = ModelCompiler = (function() {
     var gremlin = {
       get: function() {
         //todo: avoid bind() trick?
-        return self.base.client.gremlin.bind(self.base.client);
+        return self.mogwai.client.gremlin.bind(self.mogwai.client);
       }
     };
 
