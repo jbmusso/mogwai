@@ -3,6 +3,12 @@ var Q = require("q");
 var RexsterClient = require("./rexster");
 
 module.exports = TitanClient = (function(){
+  /**
+   * A Class describing the behavior of Mogwai when interacting with a Titan
+   * server.
+   *
+   * @param {Mogwai} mogwai
+   */
   function TitanClient(mogwai) {
     RexsterClient.apply(this, arguments); // Call parent constructor
   }
@@ -11,7 +17,7 @@ module.exports = TitanClient = (function(){
   TitanClient.prototype = Object.create(RexsterClient.prototype);
   TitanClient.prototype.constructor = TitanClient;
 
-  /*
+  /**
    * Asynchronously build Titan types, used for indexing
    * Tested with Titan v0.4.0
    *
@@ -22,8 +28,6 @@ module.exports = TitanClient = (function(){
    *
    * Note: as per Titan's current limitations, "key index must be created prior
    * to key being used".
-   *
-   * TODO: This method does not check (yet) for already existing types.
    *
    * @link https://github.com/thinkaurelius/titan/wiki/Type-Definition-Overview
    * @link https://github.com/thinkaurelius/titan/wiki/Titan-Limitations#temporary-limitations
@@ -48,7 +52,7 @@ module.exports = TitanClient = (function(){
     });
   };
 
-  /*
+  /**
    * Retrieves an array of names of already indexed keys.
    *
    * @return {Promise}
@@ -59,11 +63,10 @@ module.exports = TitanClient = (function(){
     return g.getIndexedKeys("Vertex.class");
   };
 
-
-  /*
-   * Create data types in Titan, used for indexing.
+  /**
+   * Create data types which Titan uses for indexing.
    *
-   * Note that the Mogwai special $type key is automatically indexed.
+   * Note that the Mogwai special "$type" key is automatically indexed.
    *
    * This method does not return promise of creation for already created types.
    *

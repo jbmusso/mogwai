@@ -4,15 +4,25 @@ var _ = require("underscore"),
     GroovyParser = require("./groovy/groovyparser");
 
 module.exports = ModelCompiler = (function() {
+  /**
+   * Class responsible for compiling a Schema into a Model class.
+   * Model Compilation is only done once at startup
+   *
+   * @param {Mogwai} mogwai - Main Mogwai instance
+   */
   function ModelCompiler(mogwai) {
     this.mogwai = mogwai;
     this.groovyParser = new GroovyParser();
   }
 
   /**
-   * Dynamically build an instantiable Model class from a Schema
+   * Build an instantiable Model class from a Schema, binding to this model
+   * all class methods and static methods defined in the Schema. It will also
+   * bind all functions defined in optional .groovy file associated to the
+   * Schema.
    *
-   * @inspiredBy: https://github.com/LearnBoost/mongoose/blob/a04860f30f03c44029ea64ec2b08e723e6baf899/lib/model.js#L2454
+   * This Schema/Model implementation is very inspired by Mongoose.
+   * @see: https://github.com/LearnBoost/mongoose/blob/a04860f30f03c44029ea64ec2b08e723e6baf899/lib/model.js#L2454
    *
    * @param {String} name - name of the model
    * @param {Schema} schema - Schema defining the model
@@ -22,6 +32,7 @@ module.exports = ModelCompiler = (function() {
   ModelCompiler.prototype.compile = function(name, schema, groovyFileContent) {
     var self = this;
 
+    // Create a model class, inheriting from base Model
     model = (function (_super) {
       // Inherit from Model
       __extends(model, _super);
@@ -34,10 +45,12 @@ module.exports = ModelCompiler = (function() {
 
     })(Model);
 
+    // Make that Model class aware of the full Mogwai environment
     model.prototype.mogwai = model.mogwai = self.mogwai;
-    model.prototype.connection = model.connection = self.mogwai.connection; //todo: replace by a getter?
+    model.prototype.connection = model.connection = self.mogwai.connection; //todo: replace by a getter? or simply remove?
 
-    // Define a special $type key used to identify vertices by type in the graph.
+    // Define a special "$type" key used to identify vertices of that model
+    // type in the graph.
     // Note that this special "Mogwai" key/property is currently automatically indexed in the graph.
     model.prototype.$type = model.$type = name.toLowerCase();
     model.prototype.schema = model.schema = schema;
@@ -52,25 +65,24 @@ module.exports = ModelCompiler = (function() {
     // Define Gremlin getter
     var gremlin = {
       get: function() {
-        //todo: avoid bind() trick?
+        // TODO: find a way to avoid bind() trick? remove getter?
         return self.mogwai.client.gremlin.bind(self.mogwai.client);
       }
     };
-
     Object.defineProperty(model, "gremlin", gremlin);
     Object.defineProperty(model.prototype, "gremlin", gremlin);
 
-    // Attach custom methods (schema methods first, then custom Groovy: avoid accidental replacements)
+    // Attach custom methods (schema methods first, then custom Groovy:
+    // avoid accidental replacements)
     this.attachGroovyFunctions(model, groovyFileContent);
     this.attachSchemaFunctions(model, schema);
-
-    model.init();
 
     return model;
   };
 
   /**
-   * Attach custom Schema static methods and instance methods to the model.
+   * Attach custom, Schema-defined static methods and instance methods to the
+   * model.
    *
    * @param {Model} model
    * @param {Schema} schema
@@ -108,10 +120,11 @@ module.exports = ModelCompiler = (function() {
     }
   };
 
-  /*
+  /**
    * Build a getter for a given GroovyScript
    *
-   * @param {GroovyScript}
+   * @param {GroovyScript} groovyScript
+   * @param {Object} - Object property definition
    */
   ModelCompiler.defineGroovyFunctionGetter = function(groovyScript) {
     var groovyGetter = {

@@ -1,5 +1,9 @@
 module.exports = Property = (function() {
-
+  /**
+   * An abstract Class defining a Model property.
+   *
+   * @param {String} name
+   */
   function Property(name) {
     this.name = name;
     this.type = this.constructor.name.substring(0, this.constructor.name.length - 8);
@@ -8,13 +12,13 @@ module.exports = Property = (function() {
     this.unique = false;
   }
 
-
-  /*
+  /**
    * Builds a property with a given definition, returning an appropriate
    * property class.
    *
    * @param {String} name
    * @param {Object} propertyDefinition
+   * @public
    */
   Property.build = function (name, propertyDefinition) {
     var property;
@@ -34,7 +38,7 @@ module.exports = Property = (function() {
     return property;
   };
 
-  /*
+  /**
    * Retrieve the type of a property, as a string, from a property definition.
    *
    * @param {Object} propertyDefinition
@@ -52,12 +56,12 @@ module.exports = Property = (function() {
     return type.toLowerCase();
   };
 
-  /*
+  /**
    * Apply a property definition, retrieves some information about that
-   * property (ie should it be indexed, unique, etc.).
+   * property (whether it should be indexed, unique, etc.).
    *
    * @param {Object} property definition
-   * @api private
+   * @private
    */
   Property.prototype.applyDefinition = function(propertyDefinition) {
     if (propertyDefinition.hasOwnProperty("index")) {
@@ -69,32 +73,32 @@ module.exports = Property = (function() {
     }
   };
 
-  /*
+  /**
    * Get the Rexster data type as a string (ie. "Integer.class",
    * "Object.class").
    *
    * @return {String}
-   * @api public
+   * @public
    */
   Property.prototype.getDataType = function() {
     return this.type +".class";
   };
 
-  /*
+  /**
    * Check whether the property should be indexed or not.
    *
    * @return {String}
-   * @api public
+   * @public
    */
   Property.prototype.isIndexed = function() {
     return this.index;
   };
 
-  /*
+  /**
    * Check whether the property should hold unique value or not.
    *
    * @return {String}
-   * @api public
+   * @public
    */
   Property.prototype.isUnique = function() {
     return this.unique;

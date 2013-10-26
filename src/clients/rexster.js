@@ -5,6 +5,12 @@ var Client = require("../client"),
     GroovyScript = require("../groovy/groovyscript");
 
 module.exports = RexsterClient = (function(){
+  /**
+   * A Class describing the behavior of Mogwai when interacting with a Rexster
+   * server.
+   *
+   * @param {Mogwai} mogwai
+   */
   function RexsterClient(mogwai) {
     Client.apply(this, arguments); // Call parent constructor
   }
@@ -118,7 +124,6 @@ module.exports = RexsterClient = (function(){
 
     this.executeScript("/tp/gremlin", groovyScript, params, callback);
   };
-
 
   return RexsterClient;
 
