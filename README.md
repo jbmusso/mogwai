@@ -71,7 +71,6 @@ Models internally manipulate vertices and edges in the graph database.
 
 ```javascript
 // This will internally be saved as a Vertex with a 'name' key of type 'String'
-
 UserSchema = new mogwai.Schema(
   name: String
 );
@@ -113,35 +112,44 @@ module.exports = mogwai.model("User", UserSchema);
 
 ### Defining methods in a separate .groovy file ###
 
-Mogwai allows you to optionally define Gremlin scripts in a separate .groovy file so you can enjoy syntax highlighting in your favorite editor.
+Mogwai allows you to optionally define Gremlin scripts in a separate .groovy file. This has the following advantages:
 
-Simply create a .groovy file in the same folder as your schema file, and give it the same name (ie add `user.groovy` in the same folder as `user.js`).
+* better caching of your Gremlin code on the server, which should result in better performance
+* avoid potential Gremlin/SQL-like injection issues
+* syntax highlighting in your favorite editor.
 
-All functions defined in that .groovy file will be loaded and automatically attached to the model. These methods can then be called asynchronously in JavaScript (simply pass a callback as last parameter).
+To attach Groovy methods to your model, simply create a .groovy file with the same name as your schema file and put both files in the same folder (ie `user.groovy` and `user.js` should be in the same folder).
 
-Suppose the following `user.groovy` file next to the User schema defined in `user.js`:
+All functions defined in that .groovy file will be loaded and automatically attached to the model as static methods. These methods can then be called asynchronously in JavaScript directly in your model.
+
+For example, suppose the following `user.groovy` file:
 
 ```groovy
-def findLatestRegisteredUser() {
-  g.V("$type", "user").order({it.b <=> it.a})[0..<10]
+def findUserByName(name) {
+  g.V('$type', 'user').has('name', name)
 }
 ```
 
-You will be able to call the following JavaScript:
+This will automatically be converted in a JavaScript method bound to your model, which will accept a name parameters as well as an optional callback parameter as last parameter.
+
+You'll then be able to call the following:
 
 ```javascript
-Users.findLatestRegistered(function(err, result) {
+Users.findUserByName("gulthor", function(err, user) {
   // Handle response
 })
 ```
 
-Note that this feature is very experimental and does not support passing parameters (yet).
+This feature supports passing parameters as of v0.2.1. Note that passing a callback is optional (see the Query section below).
+
+It is not currently possible to overload Groovy defined methods with Schema-defined, pure JavaScript method.
+
+Defining Groovy functions in the .groovy file is considered a best practice in Mogwai, and it is strongly encouraged to do so.
 
 
 ### Schema plugins ###
 
-Plugins add a set of methods to existing schemas.
-
+Plugins add a set of methods to existing schemas. They behave pretty much the same in Mogwai as they do in Mongoose.
 
 #### Plugin definition ####
 
@@ -156,23 +164,24 @@ module.exports = function(schema, options) {
   schema.static("doMoreStuff", function(callback) {
     // ...
   });
+}
 ```
 
 
 #### Adding a plugin to an existing Schema ####
 
 ```javascript
-// ...
 var mogwai = require("mogwai");
 var myplugin = require("./path/to/my/plugin");
 
+UserSchema = new mogwai.Schema(/*...*/)
 
-UserSchema = new mogwai.Schema()
-// ...
-
+// Attach plugin to UserSchema
 UserSchema.plugin(myplugin);
 
 ```
+
+Please note that plugins currently do not support attached .groovy files, but this should change in the future.
 
 
 ## Model ##
@@ -202,7 +211,7 @@ Usually called by `save()`
 
 #### Model.find(grexQuery, asModel, callback) ####
 
-Executes a grexQuery, and return data as a decorated Model (ie. with instance methods) or as raw data. Note that `asModel` is optional and defaults to true.
+Executes a Gremlin query, and return data as model instances or as raw data. Note that `asModel` is optional and defaults to true.
 
 
 #### Model.findOne(property, callback) ####
@@ -215,7 +224,10 @@ User.findOne({name: "John"}, function(error, model) {
 });
 ```
 
-gRex query: `g.V("name", "John").index(0)`
+Gremlin:
+```groovy
+g.V("name", "John")[0]
+```
 
 
 #### Model.findById(id, callback) ###
@@ -228,7 +240,10 @@ User.findById(4, function(error, model) {
 });
 ```
 
-gRex query: `g.v(id)`
+Gremlin:
+```groovy
+g.v(4)
+```
 
 #### Model.delete(id, callback)  ####
 
@@ -240,8 +255,10 @@ User.delete(4, function(error, result) {
 });
 ```
 
-gRex query: `g.removeVertex(g.v(id))`
-
+Gremlin:
+```groovy
+g.removeVertex(g.v(id))
+```
 
 ## Query ##
 
@@ -273,7 +290,7 @@ User.gremlin("g.V("$type", "user")").execute(function(err, results) {
 });
 ```
 
-Note that this also works with custom Gremlin queries defined in .groovy files bound to your Schema.
+Note that this also works with custom Gremlin queries defined in .groovy files bound to your Schema: you're free to pass a callback as last parameter, or chain `.query()` or `.execute()`.
 
 
 Tests
@@ -291,14 +308,16 @@ TODO
 
 Features
 
-  * More work on indexes
+  * Allow overriding of Groovy methods by JavaScript methods in models
+  * More work on indexes (support more databases)
+  * Schema: defining property types, indexes, etc.
   * Validation
   * Hooks (pre and post middlewares)
-  * Getters and setters
+  * Getters and setters for properties
 
 Misc
 
-  * Write more tests
+  * Write many more tests
   * Performance and optimization
 
 

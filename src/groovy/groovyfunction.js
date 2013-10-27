@@ -1,7 +1,9 @@
 var GroovyScript = require("./groovyscript");
 
 module.exports = (function () {
-
+  /**
+   * A class representing a Groovy function defined in a .groovy file.
+   */
   function GroovyFunction() {
     this.signature = null;
     this.name = null;
@@ -13,23 +15,26 @@ module.exports = (function () {
   GroovyFunction.prototype = Object.create(GroovyScript.prototype);
   GroovyFunction.prototype.constructor = GroovyFunction;
 
-
+  /**
+   * Return the name of the Groovy function, as defined in its signature
+   * @return {String}
+   */
   GroovyFunction.prototype.getName = function() {
     return this.name;
   };
 
-  /* *
+  /**
    * Set the signature of a Groovy function from its first line. For example,
    * this line:
    *    def fooBar(baz) {
    *
-   * yields the following signature:
+   * yields the following function signature:
    *    fooBar(baz)
    *
-   * Note that setting a signature also set the name of the function as well as
-   * as its parameter definition.
+   * Note that setting a signature simultaneously sets the name of the
+   * function and its parameter definition.
    *
-   * @param {String} line - Groovy line starting with def
+   * @param {String} line - A line starting with def from a .groovy file
    */
   GroovyFunction.prototype.setSignature = function(line) {
     var re = /^def(.*)( +){/;
@@ -40,9 +45,9 @@ module.exports = (function () {
   };
 
   /**
-   * Get the name of a Groovy function from its signature. Ie.
+   * Set the name of a Groovy function from its signature. Ie.
    *    fooBar(baz)
-   * will return:
+   * will return a string:
    *    fooBar
    */
   GroovyFunction.prototype.setName = function() {
@@ -51,7 +56,11 @@ module.exports = (function () {
   };
 
   /**
-   * Set the parameters (arguments) that this function accepts.
+   * Set an array of parameters (arguments) that this function accepts from its
+   * signature. Ie.
+   *    fooBar(baz, duh)
+   * will return an array:
+   *    [baz, duh]
    */
   GroovyFunction.prototype.setParams = function() {
     var re = /\(([^)]+)\)/;
@@ -63,10 +72,10 @@ module.exports = (function () {
   };
 
   /**
-   * Return parameters with their value for all parameters this function
+   * Return parameters with their value for all parameters this Groovy function
    * actually accepts.
    *
-   * @return {Object}
+   * @return {Object} - Object mapping param names to their value
    */
   GroovyFunction.prototype.getAppliedParameters = function(params) {
     var currentParam,
@@ -96,7 +105,8 @@ module.exports = (function () {
     for (var i = startLine + 1; i < fileContent.length; i++) {
       currentLine = fileContent[i];
       if (this.isEndDefLine(currentLine)) {
-        // Reached end of Groovy function definition, don't push last line (closing brace)
+        // Reached end of Groovy function definition, don't push last line
+        // (ie. the closing brace '}'')
         break;
       }
 
@@ -109,7 +119,7 @@ module.exports = (function () {
   /**
    * Check if line is the end of a function definition
    *
-   * @param {String} groovy file line
+   * @param {String} line - A .groovy file line
    * @return {Boolean} - Whether the line ends the function or not
    */
   GroovyFunction.prototype.isEndDefLine = function(line) {

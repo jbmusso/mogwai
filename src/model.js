@@ -1,13 +1,20 @@
 module.exports = Model = (function() {
 
-  function Model() {
-  }
+  /**
+   * Mogwai Model class
+   *
+   * Models are ultimately stored as at least 1 Vertex in the database. That
+   * vertex will be identified by a special "$type" property set to the
+   * name of the Model defined in the Schema. See ModelCompiler.compile().
+   */
+  function Model() {}
 
-
-  Model.init = function(callback) {
-  };
-
-
+  /**
+   * Execute a Grex query.
+   *
+   * @param {Grex} grexQuery
+   * @param {Function} callback
+   */
   Model.prototype.exec = function(grexQuery, callback) {
     console.log("Grex:", grexQuery.params);
 
@@ -19,8 +26,12 @@ module.exports = Model = (function() {
     });
   };
 
-  /*
-   * Insert a document, or update if already present (checks the vertex _id)
+  /**
+   * Save a Model instance.
+   * Will insert if new, or update if already present (currently checks for
+   * the existence of a vertex _id).
+   *
+   * @param {Function} callback
    */
   Model.prototype.save = function(callback) {
     if (this.hasOwnProperty("_id")) {
@@ -32,16 +43,21 @@ module.exports = Model = (function() {
     }
   };
 
-  /*
-   * Update current Vertex properties
+  /**
+   * Update a Model instance properties.
+   * Note: will be converted to a full Groovy function soon.
+   *
+   * @param {Function} callback
    */
   Model.prototype.update = function(callback) {
     var properties = [],
         property,
-        propertyValue;
+        propertyValue,
+        m,
+        gremlin;
 
     // Build property map, escape special chars
-    var m = "m = [", gremlin;
+    m = "m = [";
     for (var propertyName in this.schema.properties) {
       propertyValue = this[propertyName];
       propertyValue = propertyValue.replace(/\'/g, "\\'");
@@ -59,8 +75,10 @@ module.exports = Model = (function() {
     return this.gremlin(gremlin).execute(callback);
   };
 
-  /*
+  /**
    * Insert a new Model with given doc properties
+   *
+   * @param {Function} callback
    */
   Model.prototype.insert = function(callback) {
     var doc,
@@ -69,6 +87,7 @@ module.exports = Model = (function() {
         properties = this.schema.properties;
 
     doc = this;
+    // Assign Mogwai reserved "$type" property
     doc.$type = this.$type;
 
     transaction = this.g.begin();
@@ -87,7 +106,11 @@ module.exports = Model = (function() {
     return this.exec(transaction.commit(), callback);
   };
 
-
+  /**
+   * Transform a Model instance as a raw JavaScript object
+   *
+   * @return {Object}
+   */
   Model.prototype.toObject = function() {
     var o = {};
 
@@ -100,30 +123,34 @@ module.exports = Model = (function() {
     return o;
   };
 
-
-  /*
-   * Execute a Gremin query, return results as raw model instances or raw
-   * elements
+  /**
+   * Execute a Gremlin query, return results as raw model instances or raw
+   * elements.
    *
-   * @param gremlinQuery {String} Gremlin query to execute
-   * @param asModel {Boolean} Indicate if the data should be retrieved as a
-   * model instances (true) or as a raw graph elements (false).
-  */
-  Model.find = function(gremlinQuery, asModel, callback) {
-    if (typeof asModel === "function") {
-      callback = asModel;
-      asModel = true;
+   * @param {String} gremlinQuery - Gremlin query to execute
+   * @param {Boolean} retrieveAsModels - Indicate whether the data should be retrieved
+   *      as model instances (true) or as a raw graph elements (false).
+   * @param {Function} callback
+   */
+  Model.find = function(gremlinQuery, retrieveAsModels, callback) {
+    // Handle optional 'retrieveAsModels' parameter
+    if (typeof retrieveAsModels === "function") {
+      callback = retrieveAsModels;
+      retrieveAsModels = true;
     }
 
-    if (asModel === true) {
+    if (retrieveAsModels === true) {
       return this.gremlin(gremlinQuery, callback);
     } else {
       return this.gremlin(gremlinQuery).execute(callback);
     }
   };
 
-  /*
-   * Find a Vertex by name
+  /**
+   * Retrieves a single Model of said type, filter with the given property
+   *
+   * @param {Object} property - an object mapping a key to a value
+   * @param {Function} callback
    */
   Model.findOne = function(property, callback) {
     var key = Object.keys(property)[0];
@@ -134,10 +161,11 @@ module.exports = Model = (function() {
     });
   };
 
-  /*
-   * Find a Vertex by ID
+  /**
+   * Find a Model by its unique id.
    *
-   * @param id {Number}
+   * @param {Number} id
+   * @param {Function} callback
    */
   Model.findById = function(id, callback) {
     var gremlinQuery = "g.v("+ id +")";
@@ -147,10 +175,12 @@ module.exports = Model = (function() {
     });
   };
 
-  /*
-   * Delete a Vertex by ID.
+  /**
+   * Delete a Model by its unique id.
+   * Note that this will also automatically delete any edges bound to the
+   * underlying model's vertex.
    *
-   * @param id {Number}
+   * @param {Number} id
    */
   Model.delete = function(id, callback) {
     var gremlinQuery = "g.removeVertex(g.v("+ id +"))";
