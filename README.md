@@ -3,11 +3,13 @@ mogwai
 
 Object-to-graph mapper for Node.js which speaks Gremlin (and also reads .groovy files).
 
-Mogwai tries to abstract interaction with any [Tinkerpop](http://www.tinkerpop.com/)'s [Blueprints](https://github.com/tinkerpop/blueprints/wiki) compliant Graph databases (ie. TitanDB, Neo4J, OrientDB, FoundationDB, etc.).
+Mogwai tries to abstract interaction with any [Tinkerpop](http://www.tinkerpop.com/)'s [Blueprints](https://github.com/tinkerpop/blueprints/wiki) compliant Graph databases (ie. TitanDB, Neo4J, OrientDB, FoundationDB, Apache's Giraph, etc.).
 
-Mogwai sends Gremlin queries via HTTP directly to a Rexster server with the Gremlin extension enabled. Note that Mogwai also internally uses some features from [grex](https://github.com/entrendipity/grex), a "Gremlin inspired Rexster Graph Server client" (so you need to configure Batch kibble as well). Mogwai also aims to be ready for [changes coming next year with Tinkerpop 3.0](https://github.com/tinkerpop/tinkerpop3/wiki#extensions-and-kibbles). Mogwai may support Rexpro in the future.
+Mogwai sends Gremlin code/queries via HTTP directly to a Rexster server with the Gremlin extension enabled. Note that Mogwai currently also uses some features from [grex](https://github.com/entrendipity/grex), a "Gremlin inspired Rexster Graph Server client", which requires the Batch extension on your Rexster server as well.
 
-**Note that Mogwai is currently developed with [TitanDB](http://thinkaurelius.github.io/titan/) v0.4.0 only, and hasn't been tested with other Tinkerpop/Rexster compliant databases**. Although most features should work, expect some of them to not work at all (ie. the still partially supported indexes). Feel free to fork and send a pull request (see `/src/clients` if you wish to tweak client classes).
+Mogwai also aims to be ready for [changes coming next year with Tinkerpop 3.0](https://github.com/tinkerpop/tinkerpop3/wiki#extensions-and-kibbles). Mogwai may support Rexpro in the future.
+
+**Note that Mogwai is currently developed with [TitanDB](http://thinkaurelius.github.io/titan/) v0.4.0 only, and hasn't been tested with other Tinkerpop/Rexster compliant databases**. Although most features should work, expect some of them to not work at all (ie. the still partially supported indexes). Feel free to fork and send a pull request (see `/src/clients` if you wish to tweak/implement client classes).
 
 Comments, suggestions and pull requests are welcome.
 
@@ -50,10 +52,9 @@ var settings = {
   host: "localhost",
   port: 8182,
   graph: "graph",
-  client: "titan" // Currently the only supported client
+  client: "titan" // or "rexster"
 };
 
-// mogwai.connect() is basically a wrapper around grex.connect()
 mogwai.connect(settings, function(err, connection) {
   // Start here...
 });
@@ -65,9 +66,11 @@ mogwai.connect(settings, function(err, connection) {
 
 ### Definition ###
 
-Schemas compile into Models which are used to perform CRUD operations on your data.
+Schemas are basically Model definitions. Schemas compile into Models which are used to perform CRUD operations on your data.
 
-Models internally manipulate vertices and edges in the graph database.
+Models internally manipulate vertices and edges in the graph database. Note that a Model is ultimately bound to at least one vertex in the database. This Vertex will have a `$type` property (prefixed with a dollar sign) with the model's lowercased name as its value (ie. 'user').
+
+`user.js` schema file:
 
 ```javascript
 // This will internally be saved as a Vertex with a 'name' key of type 'String'
@@ -75,9 +78,12 @@ UserSchema = new mogwai.Schema(
   name: String
 );
 
+// Export and compile Schema into a Model (setting $type key to 'user')
+module.exports = mogwai.model("User", UserSchema)
+
 ```
 
-Alternatively, you can define properties this way, and add more options:
+Alternatively, you can also define properties this way, and add more options:
 
 ```javascript
 UserSchema = new mogwai.Schema(
@@ -90,35 +96,45 @@ UserSchema = new mogwai.Schema(
 ```
 
 
-### Adding methods ###
-```javascript
+### Adding class methods and instance methods ###
 
+Each Schema has a "statics" and "methods" object used to store the definitions of, respectively, **class** methods and **instance** methods. This mimics the behavior of Mongoose Schema definition.
+
+```javascript
+// This method will be available as a static/class method
 UserSchema.statics.findByName = function(name, callback) {
-  this.findOne({
-    name: name
-  }, callback);
+  this.findOne({ "name": name }, callback);
 };
 
+// This method will be attached to any instance of User models retrieved from the database
 UserSchema.methods.edit = function(data, callback) {
   this.name = data.name;
 
   return this.save(callback);
 };
-
-// Compiles schema into a model of type 'user'
-module.exports = mogwai.model("User", UserSchema);
 ```
 
+### Executing Gremlin code in your Models ###
+
+Models have access to a `this.gremlin()` function which allows you to execute any Gremlin code. This code is then executed asynchronously on the server (by passing a callback, calling `execute()` or query()`).
+
+```javascript
+UserSchema.statics.findAllVertices = function() {
+  this.gremlin("g.V()", function(err, vertices) {
+    // Handle result
+  });
+};
+```
 
 ### Defining methods in a separate .groovy file ###
 
-Mogwai allows you to optionally define Gremlin scripts in a separate .groovy file. This has the following advantages:
+Mogwai allows you to optionally define Gremlin scripts in a separate .groovy file bound to a Schema. This has the following advantages:
 
 * better caching of your Gremlin code on the server, which should result in better performance
-* avoid potential Gremlin/SQL-like injection issues
+* avoid potential Gremlin/SQL-like injection issues, because of parameters binding
 * syntax highlighting in your favorite editor.
 
-To attach Groovy methods to your model, simply create a .groovy file with the same name as your schema file and put both files in the same folder (ie `user.groovy` and `user.js` should be in the same folder).
+To attach Groovy methods to your model, simply create a .groovy file with the same name as your schema file and put both files in the same folder (ie `user.groovy` and `user.js` should be in the same folder). Mogwai will automatically detect the path of your model file, check for an eventual .groovy file and load its content if found.
 
 All functions defined in that .groovy file will be loaded and automatically attached to the model as static methods. These methods can then be called asynchronously in JavaScript directly in your model.
 
@@ -130,9 +146,9 @@ def findUserByName(name) {
 }
 ```
 
-This will automatically be converted in a JavaScript method bound to your model, which will accept a name parameters as well as an optional callback parameter as last parameter.
+Mogwai will automatically add a `findUserByName` static method to your Model class, allowing the `name` parameter to be passed.
 
-You'll then be able to call the following:
+You'll then be able to call the following anywhere in your code, without having to define anything in the Schema:
 
 ```javascript
 Users.findUserByName("gulthor", function(err, user) {
@@ -140,11 +156,29 @@ Users.findUserByName("gulthor", function(err, user) {
 })
 ```
 
-This feature supports passing parameters as of v0.2.1. Note that passing a callback is optional (see the Query section below).
+This feature supports passing parameters as of v0.2.1. Note that passing a callback is optional (see the Query section below and the distinction between `execute()` and `query()`).
 
-It is not currently possible to overload Groovy defined methods with Schema-defined, pure JavaScript method.
+As of v0.2.2, you can also override a Groovy function in your Schema should you wish to add more JavaScript behavior when calling this function. The overriden groovy function will be accessible from the `model.scripts` object:
 
-Defining Groovy functions in the .groovy file is considered a best practice in Mogwai, and it is strongly encouraged to do so.
+For example, suppose the groovy `def findUserByName(name)` function defined above; you can override it in your Schema and stil access its content with the following code:
+
+`user.js` Schema file:
+```javascript
+// Override .groovy findUserByName method
+UserSchema.statics.findUserByName = function(name, callback) {
+  // Do more JavaScript stuff here...
+  console.log("Hey, I'm overriding a Groovy method!");
+
+  // Finally, call the groovy function
+  this.scripts.findUserByName(name, function(err, foo) {
+    return callback(err, foo);
+  });
+};
+```
+
+Note: make sure you do not forget to pass over the parameters to the Groovy method (ie. the `name` parameter here).
+
+Defining custom Groovy functions directly in the Schema's .groovy file is considered a best practice in Mogwai, and it is strongly encouraged to do so.
 
 
 ### Schema plugins ###
@@ -282,7 +316,7 @@ User.gremlin("g.V("$type", "user")").query(function(err, elements) {
 
 ### Fetching elements as raw JavaScript objects ###
 
-If you wish to retrieve results as raw elements (ie. not instantiated as models), use the following:
+If you wish to retrieve results as raw elements (ie. not instantiated as models), use `.execute()` instead:
 
 ```javascript
 User.gremlin("g.V("$type", "user")").execute(function(err, results) {
@@ -308,7 +342,6 @@ TODO
 
 Features
 
-  * Allow overriding of Groovy methods by JavaScript methods in models
   * More work on indexes (support more databases)
   * Schema: defining property types, indexes, etc.
   * Validation

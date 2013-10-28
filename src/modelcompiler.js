@@ -112,11 +112,15 @@ module.exports = ModelCompiler = (function() {
     var groovyFunctions = this.groovyParser.scan(groovyFileContent);
     var fnName, fnBody, groovyFunctionGetter;
 
+    model.scripts = {};
+
     for (fnName in groovyFunctions) {
       fnBody = groovyFunctions[fnName];
-      groovyFunctionGetter = ModelCompiler.defineGroovyFunctionGetter(fnBody);
+      groovyFunctionGetter = this.attachGroovyFunction(fnBody);
 
-      Object.defineProperty(model, fnName, groovyFunctionGetter);
+      model[fnName] = groovyFunctionGetter;
+      // Avoid .bind() trick?
+      model.scripts[fnName] = groovyFunctionGetter.bind(model);
     }
   };
 
@@ -126,34 +130,28 @@ module.exports = ModelCompiler = (function() {
    * @param {GroovyScript} groovyScript
    * @param {Object} - Object property definition
    */
-  ModelCompiler.defineGroovyFunctionGetter = function(groovyScript) {
-    var groovyGetter = {
-      get: function() {
-        return function() {
-          // Get optional callback as last parameter)
-          var callback = _.last(arguments);
+  ModelCompiler.prototype.attachGroovyFunction = function(groovyScript) {
+    return function() {
+      // Get optional callback as last parameter)
+      var callback = _.last(arguments);
 
-          // Handle the special behavior of _.initial() when the only supplied
-          // argument (= the first argument) *is NOT* a callback. Indeed:
-          // _.initial() will return nothing when arguments.length === 1.
-          //
-          // This ultimately causes no parameters to be passed over to the
-          // Groovy function: because the first element is also the last one,
-          // it just gets stripped.
-          //
-          // This is an expected behavior of _.initial().
-          if (arguments.length === 1 && typeof arguments[0] !== "function" ) {
-            params = arguments;
-          } else {
-            params = _.initial(arguments);
-          }
-
-          return this.gremlin(groovyScript, params, callback);
-        };
+      // Handle the special behavior of _.initial() when the only supplied
+      // argument (= the first argument) *is NOT* a callback. Indeed:
+      // _.initial() will return nothing when arguments.length === 1.
+      //
+      // This ultimately causes no parameters to be passed over to the Groovy
+      // function: because the first element is also the last one, it just
+      // gets stripped.
+      //
+      // This is an expected behavior of _.initial().
+      if (arguments.length === 1 && typeof arguments[0] !== "function" ) {
+        params = arguments;
+      } else {
+        params = _.initial(arguments);
       }
-    };
 
-    return groovyGetter;
+      return this.gremlin(groovyScript, params, callback);
+    };
   };
 
   return ModelCompiler;
