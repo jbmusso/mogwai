@@ -39,10 +39,10 @@ describe("Schemas", function() {
 
 
 describe("Model", function() {
-  it("should have default methods findOne and findById", function(done) {
-    should.exist(model.findOne);
+  it("should have default methods findByKeyValue and findById", function(done) {
+    should.exist(model.findByKeyValue);
     should.exist(model.findById);
-    model.findOne.should.be.a("function");
+    model.findByKeyValue.should.be.a("function");
     model.findById.should.be.a("function");
     done();
   });

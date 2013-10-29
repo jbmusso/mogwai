@@ -21,7 +21,7 @@ module.exports = Model = (function() {
     grexQuery.then(function(success) {
       return callback(null, success);
     }).fail(function(err) {
-      console.log(err);
+      console.error(err);
       return callback(err);
     });
   };
@@ -45,34 +45,28 @@ module.exports = Model = (function() {
 
   /**
    * Update a Model instance properties.
-   * Note: will be converted to a full Groovy function soon.
    *
+   * @see update() function definition in model.groovy
    * @param {Function} callback
    */
   Model.prototype.update = function(callback) {
-    var properties = [],
-        property,
-        propertyValue,
-        m,
-        gremlin;
+    var propertiesMap = {},
+        propertyValue;
 
-    // Build property map, escape special chars
-    m = "m = [";
+    // Build property map only for properties defined in the Schema,
+    // and escape special chars
+    // TODO: move escaping logic to a more central place.
     for (var propertyName in this.schema.properties) {
       propertyValue = this[propertyName];
       propertyValue = propertyValue.replace(/\'/g, "\\'");
       propertyValue = propertyValue.replace(/\"/g, "\\\"");
 
-      property = propertyName +":'"+ propertyValue +"'";
-      properties.push(property);
+      propertiesMap[propertyName] = propertyValue;
     }
-    m += properties.join(", ");
-    m += "]\n";
 
-    // Update vertex properties from map
-    gremlin = m + "m.each{g.v("+this._id+").setProperty(it.key, it.value)}";
-
-    return this.gremlin(gremlin).execute(callback);
+    this.scripts.update(this._id, propertiesMap).execute(function(err, results) {
+      return callback(err, results);
+    });
   };
 
   /**

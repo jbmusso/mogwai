@@ -63,7 +63,7 @@ Overview
 
 Mogwai's API is currently inspired by two libraries:
 
-* Mongoose ([see documentation](https://github.com/LearnBoost/mongoose/)), a MongoDB modeling library for Node.js, especially for the general design of the library (Schema, Models, plugins, etc.). Hence, some method names in Mogwai are very inspired by MongoDB's method (ie. `findOne`, `findById`, etc.).
+* Mongoose ([see documentation](https://github.com/LearnBoost/mongoose/)), a MongoDB modeling library for Node.js, especially for the general design of the library (Schema, Models, plugins, etc.). Hence, some method names in Mogwai are very inspired by MongoDB's method (ie. `findById`, `update`, etc.).
 * Bulbflow ([see Github repo](https://github.com/espeed/bulbs/)), "a Python persistence framework for graph databases", especially for all stuff related to loading Gremlin scripts defined in .groovy files.
 
 

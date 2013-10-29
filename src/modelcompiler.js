@@ -87,6 +87,9 @@ module.exports = ModelCompiler = (function() {
     // Attach default JavaScript methods defined in the Schema
     this.attachSchemaFunctions(model, schema);
 
+    // Allow scripts to be used in model instances as well
+    model.prototype.scripts = model.scripts;
+
     return model;
   };
 
@@ -143,19 +146,10 @@ module.exports = ModelCompiler = (function() {
       // Get optional callback as last parameter)
       var callback = _.last(arguments);
 
-      // Handle the special behavior of _.initial() when the only supplied
-      // argument (= the first argument) *is NOT* a callback. Indeed:
-      // _.initial() will return nothing when arguments.length === 1.
-      //
-      // This ultimately causes no parameters to be passed over to the Groovy
-      // function: because the first element is also the last one, it just
-      // gets stripped.
-      //
-      // This is an expected behavior of _.initial().
-      if (arguments.length === 1 && typeof arguments[0] !== "function" ) {
-        params = arguments;
-      } else {
+      if (typeof _.last(arguments) === "function") {
         params = _.initial(arguments);
+      } else {
+        params = arguments;
       }
 
       return this.gremlin(groovyScript, params, callback);
