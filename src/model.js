@@ -146,48 +146,6 @@ module.exports = Model = (function() {
     }
   };
 
-  /**
-   * Retrieves a single Model of said type, filter with the given property
-   *
-   * @param {Object} property - an object mapping a key to a value
-   * @param {Function} callback
-   */
-  Model.findOne = function(property, callback) {
-    var key = Object.keys(property)[0];
-    var gremlinQuery = "g.V('"+ key +"', '"+ property[key] +"')[0]";
-
-    this.find(gremlinQuery, function(err, results) {
-      return callback(err, results[0]);
-    });
-  };
-
-  /**
-   * Find a Model by its unique id.
-   *
-   * @param {Number} id
-   * @param {Function} callback
-   */
-  Model.findById = function(id, callback) {
-    var gremlinQuery = "g.v("+ id +")";
-
-    this.find(gremlinQuery, function(err, results) {
-      return callback(err, results[0]);
-    });
-  };
-
-  /**
-   * Delete a Model by its unique id.
-   * Note that this will also automatically delete any edges bound to the
-   * underlying model's vertex.
-   *
-   * @param {Number} id
-   */
-  Model.delete = function(id, callback) {
-    var gremlinQuery = "g.removeVertex(g.v("+ id +"))";
-
-    this.gremlin(gremlinQuery).execute(callback);
-  };
-
 
   return Model;
 
