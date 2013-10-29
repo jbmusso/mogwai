@@ -53,14 +53,9 @@ module.exports = Model = (function() {
     var propertiesMap = {},
         propertyValue;
 
-    // Build property map only for properties defined in the Schema,
-    // and escape special chars
-    // TODO: move escaping logic to a more central place.
+    // Build property map only for properties defined in the Schema
     for (var propertyName in this.schema.properties) {
       propertyValue = this[propertyName];
-      propertyValue = propertyValue.replace(/\'/g, "\\'");
-      propertyValue = propertyValue.replace(/\"/g, "\\\"");
-
       propertiesMap[propertyName] = propertyValue;
     }
 
