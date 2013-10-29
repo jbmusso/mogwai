@@ -5,7 +5,7 @@ Object-to-graph mapper for Node.js which speaks Gremlin (and also reads .groovy 
 
 Mogwai tries to abstract interaction with any [Tinkerpop](http://www.tinkerpop.com/)'s [Blueprints](https://github.com/tinkerpop/blueprints/wiki) compliant Graph databases (ie. TitanDB, Neo4J, OrientDB, FoundationDB, Apache's Giraph, etc.).
 
-Most of the documentation is found in the wiki.
+Most of the documentation [is found in the wiki](https://github.com/gulthor/mogwai/wiki).
 
 Comments, suggestions and pull requests are welcome.
 
