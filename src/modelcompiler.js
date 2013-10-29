@@ -1,5 +1,7 @@
 var _ = require("underscore"),
-    Model = require("./model"),
+    fs = require("fs");
+
+var Model = require("./model"),
     __extends = require("./extends"),
     GroovyParser = require("./groovy/groovyparser");
 
@@ -26,10 +28,10 @@ module.exports = ModelCompiler = (function() {
    *
    * @param {String} name - name of the model
    * @param {Schema} schema - Schema defining the model
-   * @param {String} groovyFileContent - Content of a Groovy file
+   * @param {String} customGroovyFileContent - Content of a Groovy file
    * @return {Function} - Model constructor
    */
-  ModelCompiler.prototype.compile = function(name, schema, groovyFileContent) {
+  ModelCompiler.prototype.compile = function(name, schema, customGroovyFileContent) {
     var self = this;
 
     // Create a model class, inheriting from base Model
@@ -74,8 +76,19 @@ module.exports = ModelCompiler = (function() {
 
     // Attach custom methods (schema methods first, then custom Groovy:
     // avoid accidental replacements)
-    this.attachGroovyFunctions(model, groovyFileContent);
+    model.scripts = {};
+
+    this.attachGroovyFunctions(model, customGroovyFileContent);
+
+    // Load global model groovy functions
+    var globalModelGroovyFileContent = fs.readFileSync(__dirname + "/model.groovy", "utf8");
+    this.attachGroovyFunctions(model, globalModelGroovyFileContent);
+
+    // Attach default JavaScript methods defined in the Schema
     this.attachSchemaFunctions(model, schema);
+
+    // Allow scripts to be used in model instances as well
+    model.prototype.scripts = model.scripts;
 
     return model;
   };
@@ -106,13 +119,11 @@ module.exports = ModelCompiler = (function() {
    * as getters.
    *
    * @param {Model} model
-   * @param {String} groovyFileContent
+   * @param {String} customGroovyFileContent
    */
-  ModelCompiler.prototype.attachGroovyFunctions = function(model, groovyFileContent) {
-    var groovyFunctions = this.groovyParser.scan(groovyFileContent);
+  ModelCompiler.prototype.attachGroovyFunctions = function(model, customGroovyFileContent) {
+    var groovyFunctions = this.groovyParser.scan(customGroovyFileContent);
     var fnName, fnBody, groovyFunctionGetter;
-
-    model.scripts = {};
 
     for (fnName in groovyFunctions) {
       fnBody = groovyFunctions[fnName];
@@ -135,19 +146,10 @@ module.exports = ModelCompiler = (function() {
       // Get optional callback as last parameter)
       var callback = _.last(arguments);
 
-      // Handle the special behavior of _.initial() when the only supplied
-      // argument (= the first argument) *is NOT* a callback. Indeed:
-      // _.initial() will return nothing when arguments.length === 1.
-      //
-      // This ultimately causes no parameters to be passed over to the Groovy
-      // function: because the first element is also the last one, it just
-      // gets stripped.
-      //
-      // This is an expected behavior of _.initial().
-      if (arguments.length === 1 && typeof arguments[0] !== "function" ) {
-        params = arguments;
-      } else {
+      if (typeof _.last(arguments) === "function") {
         params = _.initial(arguments);
+      } else {
+        params = arguments;
       }
 
       return this.gremlin(groovyScript, params, callback);
