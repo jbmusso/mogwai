@@ -25,7 +25,7 @@ module.exports = (function () {
   /**
    * Asynchronously ask the client to send the script to the database for
    * execution, and return elements as appropriate model instances if
-   * available.
+   * available. Won't initialize elements in case of an error.
    *
    * @param {Function} callback
    */
@@ -33,9 +33,13 @@ module.exports = (function () {
     var initializer = this.client.mogwai.elementInitializer;
 
     this.client.executeGremlin(this.script, this.params, function(err, body) {
-      var elements = initializer.initElements(body);
+      var elements = [];
 
-      return callback(null, elements);
+      if (!err) {
+        elements = initializer.initElements(body);
+      }
+
+      return callback(err, elements);
     });
   };
 

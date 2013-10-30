@@ -36,6 +36,7 @@ module.exports = RexsterClient = (function(){
       return callback(new Error("Script must be an instance of GroovyScript"));
     }
 
+    var self = this;
     var settings = this.mogwai.settings;
     var url = "http://"+ settings.host +":"+ settings.port +"/graphs/"+ settings.graph + path;
 
@@ -52,19 +53,36 @@ module.exports = RexsterClient = (function(){
     };
 
     request.get(options, function(err, res, body) {
-      if (err) {
-        // HTTP/request error
-        return callback(err);
-      }
-
-      if (!body.success) {
-        // Internal Rexster error
-        return callback(body.error);
-      }
-
-      // Success!
-      return callback(null, body);
+      self.handleResponse(err, body, callback);
     });
+  };
+
+  /**
+   * Handle the HTTP response returned by Rexster upon request, checking
+   * whether it was successful or not.
+   *
+   * @param {String} err
+   * @param {String} body - HTTP response body
+   * @param {Function} callback
+   */
+  RexsterClient.prototype.handleResponse = function(err, body, callback) {
+    if (err) {
+      // HTTP/request error
+      return callback(new Error(err));
+    }
+
+    if (body.success === false || body.error) {
+      // Database error
+      return callback(new Error(body.error));
+    }
+
+    if (body.message) {
+      // Rexster error
+      return callback(new Error(body.message));
+    }
+
+    // Success!
+    return callback(null, body);
   };
 
   /**
