@@ -143,6 +143,13 @@ module.exports = RexsterClient = (function(){
     this.executeScript("/tp/gremlin", groovyScript, params, callback);
   };
 
+  /**
+   * TODO: handle indexes
+   */
+  RexsterClient.prototype.createIndexes = function() {
+    return;
+  };
+
   return RexsterClient;
 
 })();

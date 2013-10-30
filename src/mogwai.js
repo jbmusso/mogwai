@@ -7,6 +7,7 @@ var Schema = require("./schema"),
     ModelCompiler = require("./modelcompiler"),
     EventEmitter = require("events").EventEmitter,
     TitanClient = require("./clients/titan"),
+    RexsterClient = require("./clients/rexster"),
     Utils = require("./utils"),
     ElementInitializer = require("./elementinitializer");
 
@@ -60,7 +61,8 @@ module.exports = Mogwai = (function() {
    */
   Mogwai.prototype.buildClient = function() {
     var clients = {
-      titan: TitanClient
+      titan: TitanClient,
+      rexster: RexsterClient
     };
 
     this.client = new clients[this.settings.client.toLowerCase()](this);
