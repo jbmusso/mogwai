@@ -30,8 +30,10 @@ module.exports = ElementProperty = (function () {
       this.index = propertyDefinition.index;
     }
 
+    // A unique property is automatically indexed
     if (propertyDefinition.hasOwnProperty("unique")) {
       this.unique = propertyDefinition.unique;
+      this.index = true;
     }
   };
 
