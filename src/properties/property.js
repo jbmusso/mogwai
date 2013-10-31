@@ -1,5 +1,4 @@
-var _ = require("underscore"),
-    Model = require("./reference");
+var _ = require("underscore");
 
 module.exports = Property = (function() {
   /**
@@ -9,10 +8,6 @@ module.exports = Property = (function() {
    */
   function Property(name) {
     this.name = name;
-    this.type = this.constructor.name.substring(0, this.constructor.name.length - 8);
-
-    this.index = false;
-    this.unique = false;
   }
 
   /**
@@ -27,8 +22,8 @@ module.exports = Property = (function() {
     console.log("==build==", propertyName);
     var property;
     var propertyTypes = {
-      string: require("./string"),
-      reference: require("./reference"),
+      string: require("./stringproperty"),
+      reference: require("./referenceproperty"),
     };
 
     var typeName = Property.retrieveType(propertyDefinition);
@@ -69,23 +64,6 @@ module.exports = Property = (function() {
   };
 
   /**
-   * Apply a property definition, retrieves some information about that
-   * property (whether it should be indexed, unique, etc.).
-   *
-   * @param {Object} property definition
-   * @private
-   */
-  Property.prototype.applyDefinition = function(propertyDefinition) {
-    if (propertyDefinition.hasOwnProperty("index")) {
-      this.index = propertyDefinition.index;
-    }
-
-    if (propertyDefinition.hasOwnProperty("unique")) {
-      this.unique = propertyDefinition.unique;
-    }
-  };
-
-  /**
    * Get the Rexster data type as a string (ie. "Integer.class",
    * "Object.class").
    *
@@ -95,27 +73,6 @@ module.exports = Property = (function() {
   Property.prototype.getDataType = function() {
     return this.type +".class";
   };
-
-  /**
-   * Check whether the property should be indexed or not.
-   *
-   * @return {String}
-   * @public
-   */
-  Property.prototype.isIndexed = function() {
-    return this.index;
-  };
-
-  /**
-   * Check whether the property should hold unique value or not.
-   *
-   * @return {String}
-   * @public
-   */
-  Property.prototype.isUnique = function() {
-    return this.unique;
-  };
-
 
   return Property;
 
