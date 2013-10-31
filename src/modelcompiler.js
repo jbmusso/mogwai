@@ -122,18 +122,23 @@ module.exports = ModelCompiler = (function() {
    * @param {String} customGroovyFileContent
    */
   ModelCompiler.prototype.attachGroovyFunctions = function(model, customGroovyFileContent) {
-    var groovyFunctions = this.groovyParser.scan(customGroovyFileContent);
-    var fnName, fnBody, groovyFunctionGetter;
+    console.log("==attachGroovyFunctions==");
 
-    for (fnName in groovyFunctions) {
-      fnBody = groovyFunctions[fnName];
-      groovyFunctionGetter = this.attachGroovyFunction(fnBody);
+    if (customGroovyFileContent !== undefined) {
+      var groovyFunctions = this.groovyParser.scan(customGroovyFileContent);
+      var fnName, fnBody, groovyFunctionGetter;
 
-      model[fnName] = groovyFunctionGetter;
-      // Avoid .bind() trick?
-      model.scripts[fnName] = groovyFunctionGetter.bind(model);
+      for (fnName in groovyFunctions) {
+        fnBody = groovyFunctions[fnName];
+        groovyFunctionGetter = this.attachGroovyFunction(fnBody);
+
+        model[fnName] = groovyFunctionGetter;
+        // Avoid .bind() trick?
+        model.scripts[fnName] = groovyFunctionGetter.bind(model);
+      }
     }
-  };
+
+    };
 
   /**
    * Build a getter for a given GroovyScript

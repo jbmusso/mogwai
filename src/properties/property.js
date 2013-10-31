@@ -1,3 +1,6 @@
+var _ = require("underscore"),
+    Model = require("./reference");
+
 module.exports = Property = (function() {
   /**
    * An abstract Class defining a Model property.
@@ -16,23 +19,26 @@ module.exports = Property = (function() {
    * Builds a property with a given definition, returning an appropriate
    * property class.
    *
-   * @param {String} name
+   * @param {String} propertyName
    * @param {Object} propertyDefinition
    * @public
    */
-  Property.build = function (name, propertyDefinition) {
+  Property.build = function (propertyName, propertyDefinition) {
+    console.log("==build==", propertyName);
     var property;
     var propertyTypes = {
-      string: require("./string")
+      string: require("./string"),
+      reference: require("./reference"),
     };
 
-    var type = Property.retrieveType(propertyDefinition);
+    var typeName = Property.retrieveType(propertyDefinition);
+    console.log(typeName);
 
     try {
-      property = new propertyTypes[type](name, propertyDefinition);
+      property = new propertyTypes[typeName](propertyName, propertyDefinition);
       property.applyDefinition(propertyDefinition);
     } catch(e) {
-      console.error("Unsupported property type: "+ e);
+      console.error("Property Error: Unsupported property type: "+ e);
     }
 
     return property;
@@ -46,14 +52,20 @@ module.exports = Property = (function() {
    */
   Property.retrieveType = function(propertyDefinition) {
     var type;
+    // console.log("==retrieveType==");
+    // console.log(propertyDefinition);
 
     if (typeof propertyDefinition === "function") {
-      type = propertyDefinition.name;
-    } else {
-      type = propertyDefinition.type.name;
+      return propertyDefinition.name.toLowerCase();
     }
 
-    return type.toLowerCase();
+    if (propertyDefinition.type.name === "model") {
+      // console.log("--reference--");
+      return "reference";
+    } else {
+      console.log(propertyDefinition.type.name);
+      return propertyDefinition.type.name.toLowerCase();
+    }
   };
 
   /**
