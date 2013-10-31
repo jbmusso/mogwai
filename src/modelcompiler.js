@@ -87,6 +87,8 @@ module.exports = ModelCompiler = (function() {
     // Attach default JavaScript methods defined in the Schema
     this.attachSchemaFunctions(model, schema);
 
+    // this.attachModelProperties(model, schema);
+
     // Allow scripts to be used in model instances as well
     model.prototype.scripts = model.scripts;
 
@@ -156,6 +158,21 @@ module.exports = ModelCompiler = (function() {
 
       return this.gremlin(groovyScript, params, callback);
     };
+  };
+
+
+  ModelCompiler.prototype.attachModelProperties = function(model, schema) {
+    console.log("==attachModelProperties==");
+    var propertyDefinition;
+
+    _.each(schema.properties, function(property, propertyName) {
+      console.log(propertyName, property, property.type);
+
+      propertyDefinition = property.getAsModelDefinition(model);
+      Object.defineProperty(model.prototype, propertyName, propertyDefinition);
+
+    });
+
   };
 
   return ModelCompiler;

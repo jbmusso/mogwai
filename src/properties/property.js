@@ -40,7 +40,8 @@ module.exports = Property = (function() {
     var property;
     var propertyTypes = {
       string: require("./stringproperty"),
-      reference: require("./referenceproperty"),
+      single: require("./reference/singlereferenceproperty"),
+      multi: require("./reference/multireferenceproperty"),
     };
 
     var typeName = Property.retrieveType(propertyDefinition);
@@ -64,15 +65,25 @@ module.exports = Property = (function() {
   Property.retrieveType = function(propertyDefinition) {
     var type;
 
+
     if (typeof propertyDefinition === "function") {
       return propertyDefinition.name.toLowerCase();
     }
 
-    if (propertyDefinition.type.name === "model") {
-      return "reference";
+    console.log(_.isArray(propertyDefinition.type));
+
+    if (_.isArray(propertyDefinition.type)) {
+      // Multi reference
+      return "multi";
     } else {
-      return propertyDefinition.type.name.toLowerCase();
+      // Single reference
+      if (propertyDefinition.type.name === "model") {
+        return "single";
+      } else {
+        return propertyDefinition.type.name.toLowerCase();
+      }
     }
+
   };
 
   return Property;

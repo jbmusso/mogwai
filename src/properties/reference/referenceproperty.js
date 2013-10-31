@@ -1,4 +1,4 @@
-var Property = require("./property");
+var Property = require("../property");
 
 module.exports = ReferenceProperty = (function () {
 
@@ -32,6 +32,11 @@ module.exports = ReferenceProperty = (function () {
     return false;
   };
 
+
+  ReferenceProperty.prototype.getAsModelDefinition = function() {
+    throw "Not yet implemented";
+
+  };
 
   return ReferenceProperty;
 

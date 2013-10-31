@@ -58,6 +58,19 @@ module.exports = ElementProperty = (function () {
     return this.type +".class";
   };
 
+  /**
+   *
+   */
+   ElementProperty.prototype.getAsModelDefinition = function() {
+    var modelDefinition = {
+      get: function() {
+
+      }
+    };
+
+    return modelDefinition;
+  };
+
 
   return ElementProperty;
 
