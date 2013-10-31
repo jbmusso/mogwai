@@ -135,8 +135,7 @@ module.exports = ModelCompiler = (function() {
         model.scripts[fnName] = groovyFunctionGetter.bind(model);
       }
     }
-
-    };
+  };
 
   /**
    * Build a getter for a given GroovyScript

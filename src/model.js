@@ -82,13 +82,13 @@ module.exports = Model = (function() {
     transaction = this.g.begin();
     v = transaction.addVertex(doc.toObject());
 
-    for (var name in properties) {
-      property = properties[name];
+    for (var propertyName in properties) {
+      property = properties[propertyName];
 
       if (property.isIndexed()) {
-        v.addProperty(name, this[property.name]);
+        v.addProperty(propertyName, this[property.name]);
       } else {
-        v.setProperty(name, this[property.name]);
+        v.setProperty(propertyName, this[property.name]);
       }
     }
 
