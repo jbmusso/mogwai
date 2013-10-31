@@ -11,6 +11,24 @@ module.exports = Property = (function() {
   }
 
   /**
+   * Check whether the property should be indexed or not.
+   *
+   * @return {String}
+   * @public
+   */
+  Property.prototype.isIndexed = function() {
+    return this.index;
+  };
+
+  /**
+   * Check whether
+   * @public
+   */
+  Property.prototype.isIndexable = function() {
+    return this.indexable;
+  };
+
+  /**
    * Builds a property with a given definition, returning an appropriate
    * property class.
    *
@@ -19,7 +37,6 @@ module.exports = Property = (function() {
    * @public
    */
   Property.build = function (propertyName, propertyDefinition) {
-    console.log("==build==", propertyName);
     var property;
     var propertyTypes = {
       string: require("./stringproperty"),
@@ -27,7 +44,6 @@ module.exports = Property = (function() {
     };
 
     var typeName = Property.retrieveType(propertyDefinition);
-    console.log(typeName);
 
     try {
       property = new propertyTypes[typeName](propertyName, propertyDefinition);
@@ -47,31 +63,16 @@ module.exports = Property = (function() {
    */
   Property.retrieveType = function(propertyDefinition) {
     var type;
-    // console.log("==retrieveType==");
-    // console.log(propertyDefinition);
 
     if (typeof propertyDefinition === "function") {
       return propertyDefinition.name.toLowerCase();
     }
 
     if (propertyDefinition.type.name === "model") {
-      // console.log("--reference--");
       return "reference";
     } else {
-      console.log(propertyDefinition.type.name);
       return propertyDefinition.type.name.toLowerCase();
     }
-  };
-
-  /**
-   * Get the Rexster data type as a string (ie. "Integer.class",
-   * "Object.class").
-   *
-   * @return {String}
-   * @public
-   */
-  Property.prototype.getDataType = function() {
-    return this.type +".class";
   };
 
   return Property;

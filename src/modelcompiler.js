@@ -122,8 +122,6 @@ module.exports = ModelCompiler = (function() {
    * @param {String} customGroovyFileContent
    */
   ModelCompiler.prototype.attachGroovyFunctions = function(model, customGroovyFileContent) {
-    console.log("==attachGroovyFunctions==");
-
     if (customGroovyFileContent !== undefined) {
       var groovyFunctions = this.groovyParser.scan(customGroovyFileContent);
       var fnName, fnBody, groovyFunctionGetter;

@@ -7,6 +7,8 @@ module.exports = ElementProperty = (function () {
 
     this.type = this.constructor.name.substring(0, this.constructor.name.length - 8);
 
+    this.indexable = true;
+
     this.index = false;
     this.unique = false;
   }
@@ -15,6 +17,7 @@ module.exports = ElementProperty = (function () {
   ElementProperty.prototype = Object.create(Property.prototype);
   ElementProperty.prototype.constructor = ElementProperty;
 
+
   /**
    * Apply a property definition, retrieves some information about that
    * property (whether it should be indexed, unique, etc.).
@@ -22,7 +25,7 @@ module.exports = ElementProperty = (function () {
    * @param {Object} property definition
    * @private
    */
-  Property.prototype.applyDefinition = function(propertyDefinition) {
+  ElementProperty.prototype.applyDefinition = function(propertyDefinition) {
     if (propertyDefinition.hasOwnProperty("index")) {
       this.index = propertyDefinition.index;
     }
@@ -33,23 +36,24 @@ module.exports = ElementProperty = (function () {
   };
 
   /**
-   * Check whether the property should be indexed or not.
-   *
-   * @return {String}
-   * @public
-   */
-  Property.prototype.isIndexed = function() {
-    return this.index;
-  };
-
-  /**
    * Check whether the property should hold unique value or not.
    *
    * @return {String}
    * @public
    */
-  Property.prototype.isUnique = function() {
+  ElementProperty.prototype.isUnique = function() {
     return this.unique;
+  };
+
+  /**
+   * Get the Rexster data type as a string (ie. "Integer.class",
+   * "Object.class").
+   *
+   * @return {String}
+   * @public
+   */
+  ElementProperty.prototype.getDataType = function() {
+    return this.type +".class";
   };
 
 
