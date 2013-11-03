@@ -59,16 +59,32 @@ module.exports = ElementProperty = (function () {
   };
 
   /**
+   * Attach property to a schema.
    *
+   * @param {Schema} schema
    */
-   ElementProperty.prototype.getAsModelDefinition = function() {
-    var modelDefinition = {
-      get: function() {
+  ElementProperty.prototype.attachToSchema = function(schema) {
+    schema.selfProperties[this.name] = this;
+  };
 
+  /**
+   * Attach property to a model.
+   *
+   * @param {Model} model
+   */
+   ElementProperty.prototype.attachToModel = function(model) {
+    var self = this;
+
+    var propertyDefinition = {
+      get: function() {
+        return self.value;
+      },
+      set: function(value) {
+        self.value = value;
       }
     };
 
-    return modelDefinition;
+    Object.defineProperty(model.prototype, this.name, propertyDefinition);
   };
 
 

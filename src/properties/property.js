@@ -1,13 +1,18 @@
 var _ = require("underscore");
 
+/**
+ * An abstract Class defining a Model property.
+ *
+ */
 module.exports = Property = (function() {
   /**
-   * An abstract Class defining a Model property.
+   * Constructor
    *
-   * @param {String} name
+   * @param {String} name - name of the property (ie 'email' for user.email)
    */
   function Property(name) {
     this.name = name;
+    this.value = null;
   }
 
   /**
@@ -26,6 +31,14 @@ module.exports = Property = (function() {
    */
   Property.prototype.isIndexable = function() {
     return this.indexable;
+  };
+
+  Property.prototype.attachToSchema = function(schema) {
+    throw new Error("Not yet implemented");
+  };
+
+  Property.prototype.attachToModel = function(model) {
+    throw new Error("Not yet implemented");
   };
 
   /**
@@ -63,14 +76,9 @@ module.exports = Property = (function() {
    * @return {String} name of the type
    */
   Property.retrieveType = function(propertyDefinition) {
-    var type;
-
-
     if (typeof propertyDefinition === "function") {
       return propertyDefinition.name.toLowerCase();
     }
-
-    console.log(_.isArray(propertyDefinition.type));
 
     if (_.isArray(propertyDefinition.type)) {
       // Multi reference
@@ -83,7 +91,6 @@ module.exports = Property = (function() {
         return propertyDefinition.type.name.toLowerCase();
       }
     }
-
   };
 
   return Property;

@@ -87,7 +87,8 @@ module.exports = ModelCompiler = (function() {
     // Attach default JavaScript methods defined in the Schema
     this.attachSchemaFunctions(model, schema);
 
-    // this.attachModelProperties(model, schema);
+    // Attach model properties
+    this.attachProperties(model, schema);
 
     // Allow scripts to be used in model instances as well
     model.prototype.scripts = model.scripts;
@@ -160,19 +161,25 @@ module.exports = ModelCompiler = (function() {
     };
   };
 
+  /**
+   * Attach Schema defined properties to the model as getter/setters
+   *
+   * @param {Model} model
+   * @param {Schema} schema
+   */
+  ModelCompiler.prototype.attachProperties = function(model, schema) {
+    var property;
 
-  ModelCompiler.prototype.attachModelProperties = function(model, schema) {
-    console.log("==attachModelProperties==");
-    var propertyDefinition;
+    model.prototype.properties = {};
 
-    _.each(schema.properties, function(property, propertyName) {
-      console.log(propertyName, property, property.type);
+    // Initiate model properties as defined in the Schema
+    for (var propertyName in schema.properties) {
+      property = new schema.properties[propertyName].constructor();
+      property.name = propertyName;
 
-      propertyDefinition = property.getAsModelDefinition(model);
-      Object.defineProperty(model.prototype, propertyName, propertyDefinition);
-
-    });
-
+      // Attach property to this model's prototype, depending on its type
+      property.attachToModel(model);
+    }
   };
 
   return ModelCompiler;

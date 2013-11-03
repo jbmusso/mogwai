@@ -42,12 +42,11 @@ module.exports = (function () {
    * @return {Model|Object}
    */
   ElementInitializer.prototype.initElement = function(rawElement) {
-    var element, elementClass;
+    var element, ModelClass;
 
     if (this.mogwai.hasModel(rawElement.$type)) {
-      elementClass = this.mogwai.getModel(rawElement.$type);
-      element = new elementClass();
-      _.extend(element, rawElement);
+      ModelClass = this.mogwai.getModel(rawElement.$type);
+      element = new ModelClass(rawElement);
       return element;
     } else {
       return rawElement;

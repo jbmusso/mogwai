@@ -1,13 +1,31 @@
-module.exports = Model = (function() {
+var _ = require("underscore");
 
+/**
+ * Mogwai main Model class.
+ *
+ * Models are compiled at application startup from a Schema definition.
+ *
+ * Models are ultimately stored as at least 1 Vertex in the database. That
+ * vertex will be identified by a special "$type" property set to the
+ * name of the Model defined in the Schema. See ModelCompiler.compile().
+ *
+ * Models have to two kind or properties:
+ * - selfProperties: properties bound to the vertex properties
+ * - refProperties: links to other models, ie. edges pointing to other vertices
+ */
+module.exports = Model = (function() {
   /**
-   * Mogwai Model class
+   * Model constructor.
+   * Takes an optional map of key/value as first parameter used to assign
+   * properties directly at instantiation.
    *
-   * Models are ultimately stored as at least 1 Vertex in the database. That
-   * vertex will be identified by a special "$type" property set to the
-   * name of the Model defined in the Schema. See ModelCompiler.compile().
+   * @param {Object} rawElement - Optional: map properties
    */
-  function Model() {}
+  function Model(rawElement) {
+    if (rawElement) {
+      _.extend(this, rawElement);
+    }
+  }
 
   /**
    * Execute a Grex query.
@@ -44,7 +62,9 @@ module.exports = Model = (function() {
   };
 
   /**
-   * Update a Model instance properties.
+   * Update a Model instance properties, updating both the underlying vertex
+   * own properties as well as adding edges to other vertices if required by
+   * this model's refProperties.
    *
    * @see update() function definition in model.groovy
    * @param {Function} callback
@@ -53,12 +73,14 @@ module.exports = Model = (function() {
     var propertiesMap = {},
         propertyValue;
 
-    // Build property map only for properties defined in the Schema
-    for (var propertyName in this.schema.properties) {
+    // Set vertex properties as model's selfProperties: build property map
+    // only for non-reference properties defined in the Schema
+    for (var propertyName in this.schema.selfProperties) {
       propertyValue = this[propertyName];
       propertiesMap[propertyName] = propertyValue;
     }
 
+    // Update database. TODO: also handle refproperties.
     this.scripts.update(this._id, propertiesMap).execute(function(err, results) {
       return callback(err, results);
     });

@@ -10,6 +10,9 @@ module.exports = Schema = (function() {
    */
   function Schema(properties) {
     this.properties = {};
+    this.selfProperties = {}; // Properties set to the underlying Vertex.
+    this.refProperties = {}; // Properties referencing to other vertices
+
     this.statics = {};
     this.methods = {};
     this.indexes = [];
@@ -44,6 +47,10 @@ module.exports = Schema = (function() {
       propertyDefinition = properties[propertyName];
       property = Property.build(propertyName, propertyDefinition);
       this.properties[propertyName] = property;
+
+      // Tell that property to attach itself in the schema, either into
+      // refProperties or into selfProperties, depending on its type.
+      property.attachToSchema(this);
     }
   };
 
