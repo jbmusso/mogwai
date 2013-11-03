@@ -95,7 +95,7 @@ module.exports = Model = (function() {
     var doc,
         transaction,
         property,
-        properties = this.schema.properties;
+        properties = this.schema.selfProperties;
 
     doc = this;
     // Assign Mogwai reserved "$type" property
@@ -107,10 +107,13 @@ module.exports = Model = (function() {
     for (var propertyName in properties) {
       property = properties[propertyName];
 
-      if (property.isIndexed()) {
-        v.addProperty(propertyName, this[property.name]);
-      } else {
-        v.setProperty(propertyName, this[property.name]);
+      // Only add/set non-null properties (avoid Rexster bug?)
+      if (_.isNull(this[property.name]) === false) {
+        if (property.isIndexed()) {
+          v.addProperty(propertyName, this[property.name]);
+        } else {
+          v.setProperty(propertyName, this[property.name]);
+        }
       }
     }
 
