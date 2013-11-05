@@ -54,9 +54,9 @@ module.exports = MultiReferenceProperty = (function () {
       }
     };
 
-    Object.defineProperty(model.prototype, this.name, propertyDefinition);
+    Object.defineProperty(model, this.name, propertyDefinition);
     // Also make that property pushable directly from the model instance
-    model.prototype[this.name].push = this.value.push;
+    model[this.name].push = this.value.push;
   };
 
   return MultiReferenceProperty;

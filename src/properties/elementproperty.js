@@ -84,7 +84,7 @@ module.exports = ElementProperty = (function () {
       }
     };
 
-    Object.defineProperty(model.prototype, this.name, propertyDefinition);
+    Object.defineProperty(model, this.name, propertyDefinition);
   };
 
 

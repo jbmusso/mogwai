@@ -22,6 +22,18 @@ module.exports = Model = (function() {
    * @param {Object} rawElement - Optional: map properties
    */
   function Model(rawElement) {
+    var properties = this.schema.properties,
+        property;
+
+    // Attach properties to model instance
+    // TODO: move the following logic to model prototype, and avoid the dirty
+    // _.clone trick.
+    for (var propertyName in properties) {
+      property = _.clone(properties[propertyName]);
+      property.attachToModel(this);
+    }
+
+    // If any, set values to properties
     if (rawElement) {
       _.extend(this, rawElement);
     }
