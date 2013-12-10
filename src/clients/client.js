@@ -6,6 +6,9 @@ module.exports = Client = (function () {
    */
   function Client(mogwai) {
     this.mogwai = mogwai;
+
+    this.g = this.mogwai.connection.g;
+    this.graph = this.mogwai.connection.graph;
   }
 
   return Client;

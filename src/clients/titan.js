@@ -59,9 +59,15 @@ module.exports = TitanClient = (function(){
    * @return {Promise}
    */
   TitanClient.prototype.getExistingTypes = function() {
-    var g = this.mogwai.connection.grex;
+    console.log("==getExistingTypes==");
+    var g = this.mogwai.connection.g;
 
-    return g.getIndexedKeys("Vertex.class");
+    g.V(function(err, lol) {
+      console.log("--------");
+      console.log(err, lol);
+    });
+
+    // return this.g.getIndexedKeys("Vertex.class");
   };
 
   /**
@@ -75,7 +81,7 @@ module.exports = TitanClient = (function(){
    */
   TitanClient.prototype.buildMakeKeyPromise = function() {
     var promises = [],
-        g = this.mogwai.connection.grex,
+        g = this.mogwai.connection.g,
         indexableProperties = this.getIndexableProperties(),
         property,
         titanKey;

@@ -9,7 +9,7 @@ module.exports = Connection = (function() {
    */
   function Connection(mogwai) {
     this.mogwai = mogwai;
-    this.grex = null;
+    this.g = null;
   }
 
   // Inherit from EventEmitter
@@ -21,19 +21,22 @@ module.exports = Connection = (function() {
    *
    * @param {Function} callback
    */
-  Connection.prototype.open = function(callback) {
-    var self = this;
+  Connection.prototype.open = function(settings, callback) {
+    grex.connect(settings)
+    .then(this.onConnect.bind(this, callback))
+    .fail(this.onFail.bind(this, callback));
+  };
 
-    grex.connect(this.mogwai.settings)
-    .then(function (graphDB) {
-      self.grex = graphDB;
-      self.emit("open");
+  Connection.prototype.onConnect = function(graphDB, callback) {
+    this.g = graphDB;
+    this.emit("open");
 
-      return callback(null, graphDB);
-    })
-    .fail(function(error) {
-      return console.log(error);
-    });
+    return callback(null, graphDB);
+  };
+
+  Connection.prototype.onFail = function(error, callback) {
+    console.log(error);
+    callback(error);
   };
 
   return Connection;

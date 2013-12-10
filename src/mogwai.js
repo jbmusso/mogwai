@@ -3,6 +3,7 @@ var path = require("path"),
 
 var Schema = require("./schema");
 var Model = require("./model");
+var JavaTitanConnection = require("./connections/javatitanconnection");
 
 var ModelCompiler = require("./modelcompiler");
 var EventEmitter = require("events").EventEmitter;
@@ -16,8 +17,6 @@ module.exports = Mogwai = (function() {
    * The main Mogwai class, (currently) instantiated as a Singleton.
    */
   function Mogwai() {
-    var self = this;
-
     console.log("Loading Mogwai, object-to-graph mapper");
     this.schemas = {};
     this.models = {};
@@ -26,14 +25,10 @@ module.exports = Mogwai = (function() {
 
     this.client = null;
     this.settings = null;
-    this.connection = new Connection(this);
+    // this.connection = new Connection(this);
+    this.connection = null;
 
     // Register events
-    this.connection.on("open", function() {
-      self.client.createIndexes(function() {
-        self.emit("ready");
-      });
-    });
   }
 
   // Inherit from EventEmitter
@@ -52,8 +47,31 @@ module.exports = Mogwai = (function() {
   Mogwai.prototype.connect = function(settings, callback) {
     this.settings = settings;
 
-    this.buildClient();
-    this.connection.open(callback);
+    var connections = {
+      java: {
+        titan: JavaTitanConnection
+      },
+      // http: {
+      //   // titan: RestTitanConnection,
+      //   // rexster: RestRexsterConnection
+      // }
+    };
+
+    this.connection = new connections[settings.bridge][settings.client](this);
+
+    this.connection.on("open", function(g) {
+      console.log("==onConnectionOpened==");
+
+      this.buildClient();
+
+      this.client.createIndexes(function() {
+        this.emit("ready");
+
+        return callback(g);
+      }.bind(this));
+    }.bind(this));
+
+    this.connection.open(settings, callback);
   };
 
   /**
@@ -65,7 +83,9 @@ module.exports = Mogwai = (function() {
       rexster: RexsterClient
     };
 
-    this.client = new clients[this.settings.client.toLowerCase()](this);
+    var clientName = this.settings.client.toLowerCase();
+
+    this.client = new clients[clientName](this);
   };
 
   /**
