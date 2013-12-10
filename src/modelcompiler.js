@@ -59,7 +59,7 @@ module.exports = ModelCompiler = (function() {
 
     // Define grex getter
     var g = {
-      get: function() { return self.mogwai.connection.grex; }
+      get: function() { return self.mogwai.connection.g; }
     };
     Object.defineProperty(model, "g", g);
     Object.defineProperty(model.prototype, "g", g);
