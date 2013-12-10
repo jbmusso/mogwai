@@ -40,14 +40,15 @@ module.exports = Connection = (function() {
     this.g.TitanKey = grex.TitanKey;
     this.g.TitanLabel = grex.TitanLabel;
 
-    this.emit("open");
+    this.emit("open", this.g);
 
-    return callback(null, graphDB);
+    return callback(null, this.g);
   };
 
   Connection.prototype.onFail = function(callback, error) {
-    console.log(error);
-    callback(error);
+    console.error(error);
+
+    return callback(error);
   };
 
   return Connection;

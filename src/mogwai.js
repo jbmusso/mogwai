@@ -51,27 +51,23 @@ module.exports = Mogwai = (function() {
       java: {
         titan: JavaTitanConnection
       },
-      // http: {
-      //   // titan: RestTitanConnection,
-      //   // rexster: RestRexsterConnection
-      // }
+      http: {
+        titan: Connection,
+        // rexster: RestRexsterConnection
+      }
     };
 
     this.connection = new connections[settings.bridge][settings.client](this);
 
-    this.connection.on("open", function(g) {
-      console.log("==onConnectionOpened==");
-
+    this.connection.open(settings, function(err, g) {
       this.buildClient();
 
-      this.client.createIndexes(function() {
-        this.emit("ready");
+      this.client.createIndexes(function(err, indexes) {
+        this.emit("ready", g);
 
-        return callback(g);
+        callback(null, g);
       }.bind(this));
     }.bind(this));
-
-    this.connection.open(settings, callback);
   };
 
   /**

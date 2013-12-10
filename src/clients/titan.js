@@ -36,19 +36,14 @@ module.exports = TitanClient = (function(){
    * @param {Function} callback
    */
   TitanClient.prototype.createIndexes = function(callback) {
-    var self = this;
-
     this.getExistingTypes()
-    .then(function(result) {
-      self.indexedKeys = result.results;
-      return self.buildMakeKeyPromise(this.indexedKeys);
-    })
+    .then(this.setIndexedKeys.bind(this))
+    .then(this.makeKeys.bind(this))
     .then(function(success) {
       callback(null, success);
     })
     .fail(function(error) {
-      console.error("[Mogwai][TitanClient] Error creating indexes");
-      console.error(error);
+      console.error("[Mogwai][TitanClient] Error creating indexes:", error);
       callback(error);
     });
   };
@@ -59,15 +54,14 @@ module.exports = TitanClient = (function(){
    * @return {Promise}
    */
   TitanClient.prototype.getExistingTypes = function() {
-    console.log("==getExistingTypes==");
-    var g = this.mogwai.connection.g;
+    var Vertex = this.g.Vertex.class;
 
-    g.V(function(err, lol) {
-      console.log("--------");
-      console.log(err, lol);
-    });
+    return this.g.getIndexedKeys(Vertex.class);
+  };
 
-    // return this.g.getIndexedKeys("Vertex.class");
+  TitanClient.prototype.setIndexedKeys = function(result) {
+    console.log(result);
+    this.indexedKeys = result.results;
   };
 
   /**
@@ -79,16 +73,18 @@ module.exports = TitanClient = (function(){
    *
    * @return {Promise} to create all keys
    */
-  TitanClient.prototype.buildMakeKeyPromise = function() {
+  TitanClient.prototype.makeKeys = function() {
     var promises = [],
-        g = this.mogwai.connection.g,
+        g = this.g,
         indexableProperties = this.getIndexableProperties(),
         property,
-        titanKey;
+        titanKey,
+        Vertex = g.Vertex,
+        String = g.String;
 
     // Make sure we index the Mogwai special $type key used for binding a model type to a vertex.
     if (this.isAlreadyIndexed("$type") === false) {
-      promises.push(g.makeKey("$type").dataType("String.class").indexed("Vertex.class").make());
+      promises.push(g.makeKey("$type").dataType(String.class).indexed(Vertex.class).make());
     }
 
     // Also index keys defined for each model
@@ -97,7 +93,7 @@ module.exports = TitanClient = (function(){
 
       // but skip already indexed keys
       if (this.isAlreadyIndexed(property.name) === false) {
-          titanKey = g.makeKey(property.name).dataType(property.getDataType()).indexed("Vertex.class");
+          titanKey = g.makeKey(property.name).dataType(property.getDataType()).indexed(Vertex.class);
 
           if (property.isUnique()) {
             titanKey.unique();
