@@ -29,6 +29,17 @@ module.exports = Connection = (function() {
 
   Connection.prototype.onConnect = function(graphDB, callback) {
     this.g = graphDB;
+
+    this.g.T =  grex.T;
+    this.g.Contains = grex.Contains;
+    this.g.Vertex = grex.Vertex;
+    this.g.Edge = grex.Edge;
+    this.g.String = grex["String"];
+    this.g.Direction = grex.Direction;
+    this.g.Geoshape = grex.Geoshape;
+    this.g.TitanKey = grex.TitanKey;
+    this.g.TitanLabel = grex.TitanLabel;
+
     this.emit("open");
 
     return callback(null, graphDB);
