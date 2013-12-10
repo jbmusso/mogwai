@@ -1,6 +1,6 @@
 var request = require("request");
 
-var Client = require("../client"),
+var Client = require("./client"),
     Gremlin = require("../gremlin"),
     GroovyScript = require("../groovy/groovyscript");
 
