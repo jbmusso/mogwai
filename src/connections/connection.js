@@ -27,7 +27,7 @@ module.exports = Connection = (function() {
     .fail(this.onFail.bind(this, callback));
   };
 
-  Connection.prototype.onConnect = function(graphDB, callback) {
+  Connection.prototype.onConnect = function(callback, graphDB) {
     this.g = graphDB;
 
     this.g.T =  grex.T;
@@ -45,7 +45,7 @@ module.exports = Connection = (function() {
     return callback(null, graphDB);
   };
 
-  Connection.prototype.onFail = function(error, callback) {
+  Connection.prototype.onFail = function(callback, error) {
     console.log(error);
     callback(error);
   };
