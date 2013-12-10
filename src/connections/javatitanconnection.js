@@ -6,10 +6,8 @@ var Connection = require("./connection");
 module.exports = (function() {
   /**
    * JavaTitanConnection class to the graph database
-   *
-   * @param {Mogwai} mogwai
    */
-  function JavaTitanConnection(mogwai) {
+  function JavaTitanConnection() {
     Connection.apply(this, arguments);
   }
 

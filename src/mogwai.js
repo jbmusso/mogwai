@@ -3,6 +3,7 @@ var path = require("path"),
 
 var Schema = require("./schema");
 var Model = require("./model");
+var HttpConnection = require("./connections/httpconnection");
 var JavaTitanConnection = require("./connections/javatitanconnection");
 
 var ModelCompiler = require("./modelcompiler");
@@ -25,10 +26,7 @@ module.exports = Mogwai = (function() {
 
     this.client = null;
     this.settings = null;
-    // this.connection = new Connection(this);
     this.connection = null;
-
-    // Register events
   }
 
   // Inherit from EventEmitter
@@ -52,7 +50,7 @@ module.exports = Mogwai = (function() {
         titan: JavaTitanConnection
       },
       http: {
-        titan: Connection,
+        titan: HttpConnection,
         // rexster: RestRexsterConnection
       }
     };
