@@ -88,7 +88,7 @@ module.exports = Mogwai = (function() {
    * Close the connection with the database
    */
   Mogwai.prototype.disconnect = function() {
-    this.db.disconnect();
+    this.connection.close();
   };
 
   /**

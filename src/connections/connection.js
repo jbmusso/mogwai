@@ -27,6 +27,10 @@ module.exports = Connection = (function() {
     .fail(this.onFail.bind(this, callback));
   };
 
+  Connection.prototype.close = function() {
+    this.g = null;
+  };
+
   Connection.prototype.onConnect = function(callback, graphDB) {
     this.g = graphDB;
 
