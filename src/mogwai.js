@@ -3,6 +3,7 @@ var path = require("path"),
 var EventEmitter = require("events").EventEmitter;
 
 var inherits = require("inherits");
+var _ = require("underscore");
 
 var GraphClientFactory = require("./graphclientfactory");
 var GraphConnectionFactory = require("./graphconnectionfactory");
@@ -85,7 +86,7 @@ module.exports = (function() {
    * @return {Boolean}
    */
   Mogwai.prototype.hasSchema = function(schemaName) {
-    return this.schemas.hasOwnProperty(schemaName);
+    return _.has(this.schemas, schemaName);
   };
 
   /**
