@@ -10,12 +10,12 @@ var TitanJavaGraphConnection = require("./connections/titanjavagraphconnection")
 
 var ModelCompiler = require("./modelcompiler");
 var EventEmitter = require("events").EventEmitter;
-var TitanClient = require("./clients/titan");
-var RexsterClient = require("./clients/rexster");
+var TitanRestGraphClient = require("./clients/titanrestgraphclient");
+var RestGraphClient = require("./clients/restgraphclient");
 var Utils = require("./utils");
 var ElementInitializer = require("./elementinitializer");
 
-module.exports = Mogwai = (function() {
+module.exports = (function() {
   /**
    * The main Mogwai class, (currently) instantiated as a Singleton.
    */
@@ -55,7 +55,7 @@ module.exports = Mogwai = (function() {
       },
       http: {
         titan: HttpGraphConnection,
-        // rexster: RestRexsterConnection
+        // rexster: RESTRexsterConnection
       }
     };
 
@@ -77,8 +77,8 @@ module.exports = Mogwai = (function() {
    */
   Mogwai.prototype.buildClient = function() {
     var clients = {
-      titan: TitanClient,
-      rexster: RexsterClient
+      titan: TitanRestGraphClient,
+      rexster: RestGraphClient
     };
 
     var clientName = this.settings.client.toLowerCase();

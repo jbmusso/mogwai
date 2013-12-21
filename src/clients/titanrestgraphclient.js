@@ -2,7 +2,7 @@ var inherits = require("inherits");
 var Q = require("q");
 var _ = require("underscore");
 
-var RexsterClient = require("./rexster");
+var RestGraphClient = require("./RestGraphClient");
 
 module.exports = (function(){
   /**
@@ -11,12 +11,12 @@ module.exports = (function(){
    *
    * @param {Mogwai} mogwai
    */
-  function TitanClient(mogwai) {
-    RexsterClient.apply(this, arguments); // Call parent constructor
+  function TitanRESTRexsterGraphClient(mogwai) {
+    RestGraphClient.apply(this, arguments); // Call parent constructor
     this.indexedKeys = [];
   }
 
-  inherits(TitanClient, RexsterClient);
+  inherits(TitanRESTRexsterGraphClient, RestGraphClient);
 
   /**
    * Asynchronously build Titan types, used for indexing
@@ -35,7 +35,7 @@ module.exports = (function(){
    *
    * @param {Function} callback
    */
-  TitanClient.prototype.createIndexes = function(callback) {
+  TitanRESTRexsterGraphClient.prototype.createIndexes = function(callback) {
     this.getExistingTypes()
     .then(this.setIndexedKeys.bind(this))
     .then(this.makeKeys.bind(this))
@@ -43,7 +43,7 @@ module.exports = (function(){
       callback(null, success);
     })
     .fail(function(error) {
-      console.error("[Mogwai][TitanClient] Error creating indexes:", error);
+      console.error("[Mogwai][TitanRESTRexsterGraphClient] Error creating indexes:", error);
       callback(error);
     });
   };
@@ -53,13 +53,13 @@ module.exports = (function(){
    *
    * @return {Promise}
    */
-  TitanClient.prototype.getExistingTypes = function() {
+  TitanRESTRexsterGraphClient.prototype.getExistingTypes = function() {
     var Vertex = this.g.ClassTypes.Vertex;
 
     return this.g.getIndexedKeys(Vertex.class);
   };
 
-  TitanClient.prototype.setIndexedKeys = function(result) {
+  TitanRESTRexsterGraphClient.prototype.setIndexedKeys = function(result) {
     this.indexedKeys = result.results;
   };
 
@@ -72,7 +72,7 @@ module.exports = (function(){
    *
    * @return {Promise} to create all keys
    */
-  TitanClient.prototype.makeKeys = function() {
+  TitanRESTRexsterGraphClient.prototype.makeKeys = function() {
     var promises = [],
         g = this.g,
         Vertex = g.ClassTypes.Vertex,
@@ -106,7 +106,7 @@ module.exports = (function(){
    *
    * @return {Array} of properties
    */
-  TitanClient.prototype.getIndexableProperties = function() {
+  TitanRESTRexsterGraphClient.prototype.getIndexableProperties = function() {
     var models = this.mogwai.models,
         indexableProperties = [];
 
@@ -129,7 +129,7 @@ module.exports = (function(){
    * @param {String} keyname
    * @return {Boolean}
    */
-  TitanClient.prototype.isAlreadyIndexed = function(keyName) {
+  TitanRESTRexsterGraphClient.prototype.isAlreadyIndexed = function(keyName) {
     if (this.indexedKeys.indexOf(keyName) === -1) {
       return false;
     }
@@ -137,6 +137,6 @@ module.exports = (function(){
   };
 
 
-  return TitanClient;
+  return TitanRESTRexsterGraphClient;
 
 })();

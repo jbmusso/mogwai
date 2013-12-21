@@ -1,7 +1,7 @@
 var inherits = require("inherits");
 var request = require("request");
 
-var Client = require("./client"),
+var GraphClient = require("./GraphClient"),
     Gremlin = require("../gremlin"),
     GroovyScript = require("../groovy/groovyscript");
 
@@ -12,11 +12,11 @@ module.exports = (function(){
    *
    * @param {Mogwai} mogwai
    */
-  function RexsterClient(mogwai) {
-    Client.apply(this, arguments); // Call parent constructor
+  function RestGraphClient(mogwai) {
+    GraphClient.apply(this, arguments); // Call parent constructor
   }
 
-  inherits(RexsterClient, Client);
+  inherits(RestGraphClient, GraphClient);
 
   /**
    * Asynchronously send a Gremlin script to the server for execution via
@@ -30,7 +30,7 @@ module.exports = (function(){
    * @param {Object} params - parameters bound to the Groovy function
    * @param {Function} callback
    */
-  RexsterClient.prototype.executeScript = function(path, groovyScript, params, callback) {
+  RestGraphClient.prototype.executeScript = function(path, groovyScript, params, callback) {
     if (groovyScript instanceof GroovyScript === false) {
       return callback(new Error("Script must be an instance of GroovyScript"));
     }
@@ -64,7 +64,7 @@ module.exports = (function(){
    * @param {String} body - HTTP response body
    * @param {Function} callback
    */
-  RexsterClient.prototype.handleResponse = function(err, body, callback) {
+  RestGraphClient.prototype.handleResponse = function(err, body, callback) {
     if (err) {
       // HTTP/request error
       return callback(new Error(err));
@@ -98,7 +98,7 @@ module.exports = (function(){
    * @param {Object} params - parameters to pass to the gremlin script
    * @param {Function} callback - an optional callback
    */
-  RexsterClient.prototype.gremlin = function(script, params, callback) {
+  RestGraphClient.prototype.gremlin = function(script, params, callback) {
     var gremlin;
 
     // Handle case were no params were supplied
@@ -129,7 +129,7 @@ module.exports = (function(){
    * @param {Object} params - parameters to pass to the gremlin script
    * @param {Function} callback
    */
-  RexsterClient.prototype.executeGremlin = function(script, params, callback) {
+  RestGraphClient.prototype.executeGremlin = function(script, params, callback) {
     var groovyScript;
 
     if (script instanceof GroovyScript) {
@@ -145,10 +145,10 @@ module.exports = (function(){
   /**
    * TODO: handle indexes
    */
-  RexsterClient.prototype.createIndexes = function() {
+  RestGraphClient.prototype.createIndexes = function() {
     return;
   };
 
-  return RexsterClient;
+  return RestGraphClient;
 
 })();
