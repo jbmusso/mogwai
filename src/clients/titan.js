@@ -1,4 +1,5 @@
 var Q = require("q");
+var _ = require("underscore");
 
 var RexsterClient = require("./rexster");
 
@@ -75,32 +76,27 @@ module.exports = TitanClient = (function(){
   TitanClient.prototype.makeKeys = function() {
     var promises = [],
         g = this.g,
-        indexableProperties = this.getIndexableProperties(),
-        property,
-        titanKey,
         Vertex = g.ClassTypes.Vertex,
         String = g.ClassTypes.String;
 
-    // Make sure we index the Mogwai special $type key used for binding a model type to a vertex.
+    // Make sure we index the Mogwai special $type key used for binding a vertex to a model type.
     if (this.isAlreadyIndexed("$type") === false) {
       promises.push(g.makeKey("$type").dataType(String.class).indexed(Vertex.class).make());
     }
 
     // Also index keys defined for each model
-    for (var i = 0; i < indexableProperties.length; i++) {
-      property = indexableProperties[i];
-
-      // but skip already indexed keys
+    _.each(this.getIndexableProperties(), function(property) {
+      // Skip already indexed keys
       if (this.isAlreadyIndexed(property.name) === false) {
-          titanKey = g.makeKey(property.name).dataType(property.getDataType()).indexed(Vertex.class);
+        var titanKey = g.makeKey(property.name).dataType(property.getDataType()).indexed(Vertex.class);
 
-          if (property.isUnique()) {
-            titanKey.unique();
-          }
+        if (property.isUnique()) {
+          titanKey.unique();
+        }
 
-          promises.push(titanKey.make());
+        promises.push(titanKey.make());
       }
-    }
+    }, this);
 
     return Q.all(promises);
   };
@@ -113,21 +109,17 @@ module.exports = TitanClient = (function(){
    */
   TitanClient.prototype.getIndexableProperties = function() {
     var models = this.mogwai.models,
-        schemaProperties,
-        property,
         indexableProperties = [];
 
-    for (var modelName in models) {
-      schemaProperties = models[modelName].schema.properties;
+    _.each(models, function(model, modelName) {
+      var schemaProperties = models[modelName].schema.properties;
 
-      for (var propertyName in schemaProperties) {
-        property = schemaProperties[propertyName];
-
+      _.each(schemaProperties, function(property) {
         if (property.isIndexable()) {
           indexableProperties.push(property);
         }
-      }
-    }
+      });
+    });
 
     return indexableProperties;
   };
