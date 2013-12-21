@@ -1,3 +1,5 @@
+var _ = require("underscore");
+
 module.exports = Model = (function() {
 
   /**
@@ -50,14 +52,12 @@ module.exports = Model = (function() {
    * @param {Function} callback
    */
   Model.prototype.update = function(callback) {
-    var propertiesMap = {},
-        propertyValue;
+    var propertiesMap = {};
 
     // Build property map only for properties defined in the Schema
-    for (var propertyName in this.schema.properties) {
-      propertyValue = this[propertyName];
-      propertiesMap[propertyName] = propertyValue;
-    }
+    _.each(this.schema.properties, function(value, name) {
+      propertiesMap[name] = value;
+    });
 
     this.scripts.update(this._id, propertiesMap).execute(function(err, results) {
       return callback(err, results);
@@ -70,27 +70,20 @@ module.exports = Model = (function() {
    * @param {Function} callback
    */
   Model.prototype.insert = function(callback) {
-    var doc,
-        transaction,
-        property,
-        properties = this.schema.properties;
-
-    doc = this;
+    var doc = this;
     // Assign Mogwai reserved "$type" property
     doc.$type = this.$type;
 
-    transaction = this.g.begin();
-    v = transaction.addVertex(doc.toObject());
+    var transaction = this.g.begin();
+    var v = transaction.addVertex(doc.toObject());
 
-    for (var propertyName in properties) {
-      property = properties[propertyName];
-
+    _.each(this.schema.properties, function(property, propertyName) {
       if (property.isIndexed()) {
         v.addProperty(propertyName, this[property.name]);
       } else {
         v.setProperty(propertyName, this[property.name]);
       }
-    }
+    }, this);
 
     return this.exec(transaction.commit(), callback);
   };

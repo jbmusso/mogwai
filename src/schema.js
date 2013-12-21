@@ -1,3 +1,5 @@
+var _ = require("underscore");
+
 var Model = require("./model"),
     Property = require("./properties/property");
 
@@ -38,13 +40,10 @@ module.exports = Schema = (function() {
    * @param {Object} properties
    */
   Schema.prototype.add = function(properties) {
-    var propertyDefinition, property;
-
-    for (var propertyName in properties) {
-      propertyDefinition = properties[propertyName];
+    _.each(properties, function(propertyDefinition, propertyName) {
       property = Property.build(propertyName, propertyDefinition);
       this.properties[propertyName] = property;
-    }
+    }, this);
   };
 
   /**
@@ -56,9 +55,9 @@ module.exports = Schema = (function() {
    */
   Schema.prototype.method = function(name, functionDefinition) {
     if (typeof name !== "string") {
-      for (var i in name) {
-        this.methods[i] = name[i];
-      }
+      _.each(name, function(fnBody, fnName) {
+        this.methods[fnName] = fnBody;
+      }, this);
     } else {
       this.methods[name] = functionDefinition;
     }
@@ -75,9 +74,9 @@ module.exports = Schema = (function() {
    */
   Schema.prototype.static = function(name, functionDefinition) {
     if (typeof name !== "string") {
-      for (var i in name) {
-        this.statics[i] = name[i];
-      }
+      _.each(name, function(fnBody, fnName) {
+        this.statics[fnName] = fnBody;
+      }, this);
     } else {
       this.statics[name] = functionDefinition;
     }

@@ -78,13 +78,11 @@ module.exports = (function () {
    * @return {Object} - Object mapping param names to their value
    */
   GroovyFunction.prototype.getAppliedParameters = function(params) {
-    var currentParam,
-        appliedParameters = {};
+    var appliedParameters = {};
 
-    for (var i = 0; i < this.params.length; i++) {
-      currentParam = this.params[i];
+    _.each(this.params, function(currentParam, i) {
       appliedParameters[currentParam] = params[i];
-    }
+    });
 
     return appliedParameters;
   };

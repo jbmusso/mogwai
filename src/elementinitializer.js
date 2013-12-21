@@ -20,14 +20,11 @@ module.exports = (function () {
    *      raw {Object} elements
    */
   ElementInitializer.prototype.initElements = function(responseBody) {
-    var rawElement,
-        i,
-        elements = [];
+    var elements = [];
 
-    for (i = 0; i < responseBody.results.length; i++) {
-      rawElement = responseBody.results[i];
+    _.each(responseBody.results, function(rawElement) {
       elements.push(this.initElement(rawElement));
-    }
+    }, this);
 
     return elements;
   };

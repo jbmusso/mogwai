@@ -97,17 +97,15 @@ module.exports = (function() {
    * @param {Schema} schema
    */
   ModelCompiler.prototype.attachSchemaFunctions = function(model, schema) {
-    var fnName;
-
     // Add instance methods
-    for (fnName in schema.methods) {
+    _.each(schema.methods, function(fnBody, fnName) {
       model.prototype[fnName] = schema.methods[fnName];
-    }
+    });
 
     // Add class methods
-    for (fnName in schema.statics) {
+    _.each(schema.statics, function(fnBody, fnName) {
       model[fnName] = schema.statics[fnName];
-    }
+    });
   };
 
   /**
@@ -120,16 +118,14 @@ module.exports = (function() {
   ModelCompiler.prototype.attachGroovyFunctions = function(model, customGroovyFileContent) {
     if (customGroovyFileContent !== undefined) {
       var groovyFunctions = this.groovyParser.scan(customGroovyFileContent);
-      var fnName, fnBody, groovyFunctionGetter;
 
-      for (fnName in groovyFunctions) {
-        fnBody = groovyFunctions[fnName];
-        groovyFunctionGetter = this.attachGroovyFunction(fnBody);
+      _.each(groovyFunctions, function(fnBody, fnName) {
+        var groovyFunctionGetter = this.attachGroovyFunction(fnBody);
 
         model[fnName] = groovyFunctionGetter;
         // Avoid .bind() trick?
         model.scripts[fnName] = groovyFunctionGetter.bind(model);
-      }
+      }, this);
     }
   };
 
