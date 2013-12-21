@@ -55,7 +55,7 @@ module.exports = Mogwai = (function() {
       }
     };
 
-    this.connection = new connections[settings.bridge][settings.client](this);
+    this.connection = new connections[settings.bridge][settings.client]();
 
     this.connection.open(settings, function(err, g) {
       this.buildClient();

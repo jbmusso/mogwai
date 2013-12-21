@@ -4,10 +4,8 @@ module.exports = (function() {
   /**
    * GraphConnection class to the graph database
    *
-   * @param {Mogwai} mogwai
    */
-  function GraphConnection(mogwai) {
-    this.mogwai = mogwai;
+  function GraphConnection() {
     this.g = null;
   }
 
