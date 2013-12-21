@@ -1,31 +1,31 @@
-var Connection = require("./connection");
+var GraphConnection = require("./graphconnection");
 var grex = require("grex");
 
 
-module.exports = HttpConnection = (function() {
+module.exports = (function() {
   /**
-   * HttpConnection class to the graph database
+   * HttpGraphConnection class to the graph database
    */
-  function HttpConnection() {
-    Connection.apply(this, arguments);
+  function HttpGraphConnection() {
+    GraphConnection.apply(this, arguments);
   }
 
-  // Inherit from Connection
-  HttpConnection.prototype = Object.create(Connection.prototype);
-  HttpConnection.prototype.constructor = HttpConnection;
+  // Inherit from GraphConnection
+  HttpGraphConnection.prototype = Object.create(GraphConnection.prototype);
+  HttpGraphConnection.prototype.constructor = HttpGraphConnection;
 
   /**
    * Opens a Httpconnection to Grex.
    *
    * @param {Function} callback
    */
-  HttpConnection.prototype.open = function(settings, callback) {
+  HttpGraphConnection.prototype.open = function(settings, callback) {
     grex.connect(settings)
     .then(this.onConnect.bind(this, callback))
     .fail(this.onFail.bind(this, callback));
   };
 
-  HttpConnection.prototype.onConnect = function(callback, graphDB) {
+  HttpGraphConnection.prototype.onConnect = function(callback, graphDB) {
     this.g = graphDB;
 
     this.g.ClassTypes = {
@@ -45,6 +45,6 @@ module.exports = HttpConnection = (function() {
     return callback(null, this.g);
   };
 
-  return HttpConnection;
+  return HttpGraphConnection;
 
 })();

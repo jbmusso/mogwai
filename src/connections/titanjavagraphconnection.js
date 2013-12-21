@@ -1,26 +1,26 @@
 var path = require("path");
 
 var Titan = require("titan-node");
-var Connection = require("./connection");
+var GraphConnection = require("./graphconnection");
 
 module.exports = (function() {
   /**
-   * JavaTitanConnection class to the graph database
+   * TitanJavaGraphConnection class to the graph database
    */
-  function JavaTitanConnection() {
-    Connection.apply(this, arguments);
+  function TitanJavaGraphConnection() {
+    GraphConnection.apply(this, arguments);
   }
 
-  // Inherit from Connection
-  JavaTitanConnection.prototype = Object.create(Connection.prototype);
-  JavaTitanConnection.prototype.constructor = JavaTitanConnection;
+  // Inherit from GraphConnection
+  TitanJavaGraphConnection.prototype = Object.create(GraphConnection.prototype);
+  TitanJavaGraphConnection.prototype.constructor = TitanJavaGraphConnection;
 
   /**
    * Opens a connection to Grex.
    *
    * @param {Function} callback
    */
-  JavaTitanConnection.prototype.open = function(settings, callback) {
+  TitanJavaGraphConnection.prototype.open = function(settings, callback) {
     try {
       var gremlin = new Titan.Gremlin({ loglevel: 'OFF' });
       var TitanFactory = gremlin.java.import('com.thinkaurelius.titan.core.TitanFactory');
@@ -38,6 +38,6 @@ module.exports = (function() {
 
   };
 
-  return JavaTitanConnection;
+  return TitanJavaGraphConnection;
 
 })();

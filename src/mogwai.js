@@ -3,8 +3,8 @@ var path = require("path"),
 
 var Schema = require("./schema");
 var Model = require("./model");
-var HttpConnection = require("./connections/httpconnection");
-var JavaTitanConnection = require("./connections/javatitanconnection");
+var HttpGraphConnection = require("./connections/httpgraphconnection");
+var TitanJavaGraphConnection = require("./connections/titanjavagraphconnection");
 
 var ModelCompiler = require("./modelcompiler");
 var EventEmitter = require("events").EventEmitter;
@@ -47,10 +47,10 @@ module.exports = Mogwai = (function() {
 
     var connections = {
       java: {
-        titan: JavaTitanConnection
+        titan: TitanJavaGraphConnection
       },
       http: {
-        titan: HttpConnection,
+        titan: HttpGraphConnection,
         // rexster: RestRexsterConnection
       }
     };
