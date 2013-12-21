@@ -50,17 +50,6 @@ module.exports = (function(){
   };
 
   /**
-   * For all registered Mogwai models with given properties, return an array of
-   * of properties (keys) which can be indexed.
-   *
-   * @return {Array} of properties
-   */
-  TitanJavaGraphClient.prototype.getIndexableProperties = function() {
-
-    return indexableProperties;
-  };
-
-  /**
    * Tell whether a key has already been indexed in the Database or not.
    *
    * @param {String} keyname

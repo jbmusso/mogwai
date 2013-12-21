@@ -187,6 +187,32 @@ module.exports = (function() {
     return this.getModel(modelName);
   };
 
+  /**
+   * For all registered Mogwai models, return an array of properties (keys)
+   * which are flagged for indexing.
+   *
+   * @return {Array<Properties>} of properties
+   */
+  Mogwai.prototype.getPropertiesToIndex = function() {
+    var indexableProperties = [];
+    var propertyNames = [];
+
+    _.each(this.models, function(model, modelName, models) {
+      var schemaProperties = models[modelName].schema.properties;
+
+      _.each(schemaProperties, function(property) {
+        if (property.isIndexable()) {
+          indexableProperties.push(property);
+          propertyNames.push(property.name);
+        }
+      });
+    });
+
+    console.log('Properties flagged for indexing: ' + propertyNames + ' (count: ' + propertyNames.length + ')');
+
+    return indexableProperties;
+  };
+
   return Mogwai;
 
 })();

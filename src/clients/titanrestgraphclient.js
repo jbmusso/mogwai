@@ -84,7 +84,7 @@ module.exports = (function(){
     }
 
     // Also index keys defined for each model
-    _.each(this.getIndexableProperties(), function(property) {
+    _.each(this.mogwai.getPropertiesToIndex(), function(property) {
       // Skip already indexed keys
       if (this.isAlreadyIndexed(property.name) === false) {
         var titanKey = g.makeKey(property.name).dataType(property.getDataType()).indexed(Vertex.class);
@@ -98,29 +98,6 @@ module.exports = (function(){
     }, this);
 
     return Q.all(promises);
-  };
-
-  /**
-   * For all registered Mogwai models with given properties, return an array of
-   * of properties (keys) which can be indexed.
-   *
-   * @return {Array} of properties
-   */
-  TitanRestGraphClient.prototype.getIndexableProperties = function() {
-    var models = this.mogwai.models,
-        indexableProperties = [];
-
-    _.each(models, function(model, modelName) {
-      var schemaProperties = models[modelName].schema.properties;
-
-      _.each(schemaProperties, function(property) {
-        if (property.isIndexable()) {
-          indexableProperties.push(property);
-        }
-      });
-    });
-
-    return indexableProperties;
   };
 
   /**
