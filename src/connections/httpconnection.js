@@ -28,15 +28,17 @@ module.exports = HttpConnection = (function() {
   HttpConnection.prototype.onConnect = function(callback, graphDB) {
     this.g = graphDB;
 
-    this.g.T =  grex.T;
-    this.g.Contains = grex.Contains;
-    this.g.Vertex = grex.Vertex;
-    this.g.Edge = grex.Edge;
-    this.g.String = grex["String"];
-    this.g.Direction = grex.Direction;
-    this.g.Geoshape = grex.Geoshape;
-    this.g.TitanKey = grex.TitanKey;
-    this.g.TitanLabel = grex.TitanLabel;
+    this.g.ClassTypes = {
+      T: grex.T,
+      Contains: grex.Contains,
+      Vertex: grex.Vertex,
+      Edge: grex.Edge,
+      String: grex["String"],
+      Direction: grex.Direction,
+      Geoshape: grex.Geoshape,
+      TitanKey: grex.TitanKey,
+      TitanLabel: grex.TitanLabel
+    };
 
     this.emit("open", this.g);
 

@@ -54,13 +54,12 @@ module.exports = TitanClient = (function(){
    * @return {Promise}
    */
   TitanClient.prototype.getExistingTypes = function() {
-    var Vertex = this.g.Vertex.class;
+    var Vertex = this.g.ClassTypes.Vertex;
 
     return this.g.getIndexedKeys(Vertex.class);
   };
 
   TitanClient.prototype.setIndexedKeys = function(result) {
-    console.log(result);
     this.indexedKeys = result.results;
   };
 
@@ -79,8 +78,8 @@ module.exports = TitanClient = (function(){
         indexableProperties = this.getIndexableProperties(),
         property,
         titanKey,
-        Vertex = g.Vertex,
-        String = g.String;
+        Vertex = g.ClassTypes.Vertex,
+        String = g.ClassTypes.String;
 
     // Make sure we index the Mogwai special $type key used for binding a model type to a vertex.
     if (this.isAlreadyIndexed("$type") === false) {
