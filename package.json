@@ -29,7 +29,8 @@
     "q": "~0.9.7",
     "request": "~2.27.0",
     "gremlin": "~0.3.12",
-    "titan-node": "~0.1.11"
+    "titan-node": "~0.1.11",
+    "inherits": "~2.0.1"
   },
   "devDependencies": {
     "mocha": "~1.13.0",

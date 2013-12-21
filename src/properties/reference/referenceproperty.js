@@ -1,15 +1,15 @@
+var inherits = require("inherits");
+
 var Property = require("../property");
 
-module.exports = ReferenceProperty = (function () {
+module.exports = (function () {
 
   function ReferenceProperty() {
     Property.apply(this, arguments); // Call parent constructor
     this.indexable = false;
   }
 
-  // Inherit from Property
-  ReferenceProperty.prototype = Object.create(Property.prototype);
-  ReferenceProperty.prototype.constructor = ReferenceProperty;
+  inherits(ReferenceProperty, Property);
 
   /**
    * Apply a property definition, retrieves some information about that

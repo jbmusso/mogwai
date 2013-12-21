@@ -1,7 +1,7 @@
 var Utils = require("../utils");
 var GroovyFunction = require("./groovyfunction");
 
-module.exports = GroovyParser = (function () {
+module.exports = (function () {
 
   function GroovyParser() {
   }

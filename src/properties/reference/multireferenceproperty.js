@@ -1,15 +1,15 @@
+var inherits = require("inherits");
+
 var ReferenceProperty = require("./referenceproperty");
 
-module.exports = MultiReferenceProperty = (function () {
+module.exports = (function () {
 
   function MultiReferenceProperty() {
     ReferenceProperty.apply(this, arguments); // Call parent constructor
     this.indexable = false;
   }
 
-  // Inherit from MultiReferenceProperty
-  MultiReferenceProperty.prototype = Object.create(ReferenceProperty.prototype);
-  MultiReferenceProperty.prototype.constructor = MultiReferenceProperty;
+  inherits(MultiReferenceProperty, ReferenceProperty);
 
   MultiReferenceProperty.prototype.getAsModelDefinition = function() {
     return {

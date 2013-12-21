@@ -1,15 +1,14 @@
+var inherits = require("inherits");
+
 var ElementProperty = require("./elementproperty");
 
-module.exports = StringProperty = (function () {
+module.exports = (function () {
 
   function StringProperty() {
     ElementProperty.apply(this, arguments); // Call parent constructor
   }
 
-  // Inherit from ElementProperty
-  StringProperty.prototype = Object.create(ElementProperty.prototype);
-  StringProperty.prototype.constructor = StringProperty;
-
+  inherits(StringProperty, ElementProperty);
 
   return StringProperty;
 

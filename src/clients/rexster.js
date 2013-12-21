@@ -1,10 +1,11 @@
+var inherits = require("inherits");
 var request = require("request");
 
 var Client = require("./client"),
     Gremlin = require("../gremlin"),
     GroovyScript = require("../groovy/groovyscript");
 
-module.exports = RexsterClient = (function(){
+module.exports = (function(){
   /**
    * A Class describing the behavior of Mogwai when interacting with a Rexster
    * server.
@@ -15,9 +16,7 @@ module.exports = RexsterClient = (function(){
     Client.apply(this, arguments); // Call parent constructor
   }
 
-  // Inherit from Client
-  RexsterClient.prototype = Object.create(Client.prototype);
-  RexsterClient.prototype.constructor = RexsterClient;
+  inherits(RexsterClient, Client);
 
   /**
    * Asynchronously send a Gremlin script to the server for execution via

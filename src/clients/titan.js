@@ -1,9 +1,10 @@
+var inherits = require("inherits");
 var Q = require("q");
 var _ = require("underscore");
 
 var RexsterClient = require("./rexster");
 
-module.exports = TitanClient = (function(){
+module.exports = (function(){
   /**
    * A Class describing the behavior of Mogwai when interacting with a Titan
    * server.
@@ -15,9 +16,7 @@ module.exports = TitanClient = (function(){
     this.indexedKeys = [];
   }
 
-  // Inherit from RexsterClient
-  TitanClient.prototype = Object.create(RexsterClient.prototype);
-  TitanClient.prototype.constructor = TitanClient;
+  inherits(TitanClient, RexsterClient);
 
   /**
    * Asynchronously build Titan types, used for indexing

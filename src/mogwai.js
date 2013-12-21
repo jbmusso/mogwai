@@ -1,6 +1,8 @@
 var path = require("path"),
     fs = require("fs");
 
+var inherits = require("inherits");
+
 var Schema = require("./schema");
 var Model = require("./model");
 var HttpGraphConnection = require("./connections/httpgraphconnection");
@@ -28,6 +30,8 @@ module.exports = Mogwai = (function() {
     this.settings = null;
     this.connection = null;
   }
+
+  inherits(Mogwai, EventEmitter);
 
   // Inherit from EventEmitter
   Mogwai.prototype = Object.create(EventEmitter.prototype);

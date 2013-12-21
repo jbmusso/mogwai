@@ -1,6 +1,6 @@
 var _ = require("underscore");
 
-module.exports = Property = (function() {
+module.exports = (function() {
   /**
    * An abstract Class defining a Model property.
    *

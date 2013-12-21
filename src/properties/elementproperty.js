@@ -1,6 +1,8 @@
+var inherits = require("inherits");
+
 var Property = require("./property");
 
-module.exports = ElementProperty = (function () {
+module.exports = (function () {
 
   function ElementProperty() {
     Property.apply(this, arguments); // Call parent constructor
@@ -13,10 +15,7 @@ module.exports = ElementProperty = (function () {
     this.unique = false;
   }
 
-  // Inherit from Property
-  ElementProperty.prototype = Object.create(Property.prototype);
-  ElementProperty.prototype.constructor = ElementProperty;
-
+  inherits(ElementProperty, Property);
 
   /**
    * Apply a property definition, retrieves some information about that

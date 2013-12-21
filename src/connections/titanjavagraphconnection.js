@@ -1,6 +1,8 @@
 var path = require("path");
 
+var inherits = require("inherits");
 var Titan = require("titan-node");
+
 var GraphConnection = require("./graphconnection");
 
 module.exports = (function() {
@@ -11,9 +13,7 @@ module.exports = (function() {
     GraphConnection.apply(this, arguments);
   }
 
-  // Inherit from GraphConnection
-  TitanJavaGraphConnection.prototype = Object.create(GraphConnection.prototype);
-  TitanJavaGraphConnection.prototype.constructor = TitanJavaGraphConnection;
+  inherits(TitanJavaGraphConnection, GraphConnection);
 
   /**
    * Opens a connection to Grex.

@@ -1,5 +1,7 @@
 var EventEmitter = require("events").EventEmitter;
 
+var inherits = require("inherits");
+
 module.exports = (function() {
   /**
    * GraphConnection class to the graph database
@@ -9,9 +11,7 @@ module.exports = (function() {
     this.g = null;
   }
 
-  // Inherit from EventEmitter
-  GraphConnection.prototype = Object.create(EventEmitter.prototype);
-  GraphConnection.prototype.constructor = GraphConnection;
+  inherits(GraphConnection, EventEmitter);
 
   GraphConnection.prototype.close = function() {
     this.g = null;

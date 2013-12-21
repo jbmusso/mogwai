@@ -1,5 +1,7 @@
-var GraphConnection = require("./graphconnection");
+var inherits = require("inherits");
 var grex = require("grex");
+
+var GraphConnection = require("./graphconnection");
 
 
 module.exports = (function() {
@@ -10,9 +12,7 @@ module.exports = (function() {
     GraphConnection.apply(this, arguments);
   }
 
-  // Inherit from GraphConnection
-  HttpGraphConnection.prototype = Object.create(GraphConnection.prototype);
-  HttpGraphConnection.prototype.constructor = HttpGraphConnection;
+  inherits(HttpGraphConnection, GraphConnection);
 
   /**
    * Opens a Httpconnection to Grex.

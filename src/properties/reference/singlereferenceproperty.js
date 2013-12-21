@@ -1,15 +1,15 @@
+var inherits = require("inherits");
+
 var ReferenceProperty = require("./referenceproperty");
 
-module.exports = SingleReferenceProperty = (function () {
+module.exports = (function () {
 
   function SingleReferenceProperty() {
     ReferenceProperty.apply(this, arguments); // Call parent constructor
     this.indexable = false;
   }
 
-  // Inherit from SingleReferenceProperty
-  SingleReferenceProperty.prototype = Object.create(ReferenceProperty.prototype);
-  SingleReferenceProperty.prototype.constructor = SingleReferenceProperty;
+  inherits(SingleReferenceProperty, ReferenceProperty);
 
   SingleReferenceProperty.prototype.getAsModelDefinition = function() {
     return {
