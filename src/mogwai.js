@@ -4,13 +4,13 @@ var EventEmitter = require("events").EventEmitter;
 
 var inherits = require("inherits");
 
+var GraphClientFactory = require("./graphclientfactory");
+var GraphConnectionFactory = require("./graphconnectionfactory");
+
 var Schema = require("./schema");
 var Model = require("./model");
-var HttpGraphConnection = require("./connections/httpgraphconnection");
-var TitanJavaGraphConnection = require("./connections/titanjavagraphconnection");
-
 var ModelCompiler = require("./modelcompiler");
-var GraphClientFactory = require("./graphclientfactory");
+
 var Utils = require("./utils");
 var ElementInitializer = require("./elementinitializer");
 
@@ -25,6 +25,7 @@ module.exports = (function() {
     this.modelCompiler = new ModelCompiler(this);
     this.elementInitializer = new ElementInitializer(this);
     this.graphClientFactory = new GraphClientFactory(this);
+    this.graphConnectionFactory = new GraphConnectionFactory(this);
 
     this.client = null;
     this.settings = null;
@@ -49,17 +50,7 @@ module.exports = (function() {
   Mogwai.prototype.connect = function(settings, callback) {
     this.settings = settings;
 
-    var connections = {
-      java: {
-        titan: TitanJavaGraphConnection
-      },
-      http: {
-        titan: HttpGraphConnection,
-        // rexster: RESTRexsterConnection
-      }
-    };
-
-    this.connection = new connections[settings.bridge][settings.client]();
+    this.connection = this.graphConnectionFactory.createConnection(settings);
 
     this.connection.open(settings, function(err, g) {
       this.buildClient();
