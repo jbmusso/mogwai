@@ -70,7 +70,7 @@ module.exports = (function() {
   Mogwai.prototype.buildClient = function() {
     var clientName = this.settings.client.toLowerCase();
 
-    this.client = this.graphClientFactory.createClient(clientName, this);
+    this.client = this.graphClientFactory.createClient(this.settings.bridge, clientName);
   };
 
   /**

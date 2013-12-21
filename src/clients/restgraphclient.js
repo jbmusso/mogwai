@@ -1,7 +1,7 @@
 var inherits = require("inherits");
 var request = require("request");
 
-var GraphClient = require("./GraphClient"),
+var GraphClient = require("./graphclient"),
     Gremlin = require("../gremlin"),
     GroovyScript = require("../groovy/groovyscript");
 
