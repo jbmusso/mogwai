@@ -1,11 +1,12 @@
 var _ = require("underscore"),
     fs = require("fs");
 
+var inherits = require("inherits");
+
 var Model = require("./model"),
-    __extends = require("./extends"),
     GroovyParser = require("./groovy/groovyparser");
 
-module.exports = ModelCompiler = (function() {
+module.exports = (function() {
   /**
    * Class responsible for compiling a Schema into a Model class.
    * Model Compilation is only done once at startup
@@ -34,22 +35,15 @@ module.exports = ModelCompiler = (function() {
   ModelCompiler.prototype.compile = function(name, schema, customGroovyFileContent) {
     var self = this;
 
-    // Create a model class, inheriting from base Model
-    model = (function (_super) {
-      // Inherit from Model
-      __extends(model, _super);
+    function model() {
+      Model.apply(this, arguments);
+    }
 
-      function model() {
-        return model.__super__.constructor.apply(this, arguments);
-      }
-
-      return model;
-
-    })(Model);
+    inherits(model, Model);
 
     // Make that Model class aware of the full Mogwai environment
-    model.prototype.mogwai = model.mogwai = self.mogwai;
-    model.prototype.connection = model.connection = self.mogwai.connection; //todo: replace by a getter? or simply remove?
+    model.prototype.mogwai = model.mogwai = this.mogwai;
+    model.prototype.connection = model.connection = this.mogwai.connection; //todo: replace by a getter? or simply remove?
 
     // Define a special "$type" key used to identify vertices of that model
     // type in the graph.
