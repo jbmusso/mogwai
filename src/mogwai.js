@@ -1,5 +1,6 @@
 var path = require("path"),
     fs = require("fs");
+var EventEmitter = require("events").EventEmitter;
 
 var inherits = require("inherits");
 
@@ -9,9 +10,7 @@ var HttpGraphConnection = require("./connections/httpgraphconnection");
 var TitanJavaGraphConnection = require("./connections/titanjavagraphconnection");
 
 var ModelCompiler = require("./modelcompiler");
-var EventEmitter = require("events").EventEmitter;
-var TitanRestGraphClient = require("./clients/titanrestgraphclient");
-var RestGraphClient = require("./clients/restgraphclient");
+var GraphClientFactory = require("./graphclientfactory");
 var Utils = require("./utils");
 var ElementInitializer = require("./elementinitializer");
 
@@ -25,6 +24,7 @@ module.exports = (function() {
     this.models = {};
     this.modelCompiler = new ModelCompiler(this);
     this.elementInitializer = new ElementInitializer(this);
+    this.graphClientFactory = new GraphClientFactory(this);
 
     this.client = null;
     this.settings = null;
@@ -76,14 +76,9 @@ module.exports = (function() {
    * Define Mogwai's client with the client type defined in the settings.
    */
   Mogwai.prototype.buildClient = function() {
-    var clients = {
-      titan: TitanRestGraphClient,
-      rexster: RestGraphClient
-    };
-
     var clientName = this.settings.client.toLowerCase();
 
-    this.client = new clients[clientName](this);
+    this.client = this.graphClientFactory.createClient(clientName, this);
   };
 
   /**
