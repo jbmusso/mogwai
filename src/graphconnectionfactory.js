@@ -2,6 +2,8 @@ var HttpGraphConnection = require("./connections/httpgraphconnection");
 var TitanJavaGraphConnection = require("./connections/titanjavagraphconnection");
 
 module.exports = (function() {
+  'use strict';
+
   function GraphConnectionFactory(mogwai) {
     this.mogwai = mogwai;
   }

@@ -1,6 +1,7 @@
 var _ = require("underscore");
 
 module.exports = Model = (function() {
+  'use strict';
 
   /**
    * Mogwai Model class

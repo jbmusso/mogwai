@@ -3,6 +3,8 @@ var EventEmitter = require("events").EventEmitter;
 var inherits = require("inherits");
 
 module.exports = (function() {
+  'use strict';
+
   /**
    * GraphConnection class to the graph database
    *

@@ -3,6 +3,8 @@ var inherits = require("inherits");
 var GroovyScript = require("./groovyscript");
 
 module.exports = (function () {
+  'use strict';
+
   /**
    * A class representing a Groovy function defined in a .groovy file.
    */

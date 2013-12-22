@@ -1,4 +1,4 @@
-module.exports = Utils = {
+module.exports = {
   /*
    * Get the full file path of the calling function.
    *

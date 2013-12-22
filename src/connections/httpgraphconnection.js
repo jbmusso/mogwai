@@ -5,6 +5,8 @@ var GraphConnection = require("./graphconnection");
 
 
 module.exports = (function() {
+  'use strict';
+
   /**
    * HttpGraphConnection class to the graph database
    */

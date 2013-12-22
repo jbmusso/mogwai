@@ -16,6 +16,7 @@ var Utils = require("./utils");
 var ElementInitializer = require("./elementinitializer");
 
 module.exports = (function() {
+  'use strict';
   /**
    * The main Mogwai class, (currently) instantiated as a Singleton.
    */
@@ -181,7 +182,7 @@ module.exports = (function() {
     this.registerSchema(modelName, schema);
 
     var groovyFile = this.readGroovyFile(Utils.getCaller().id, modelName);
-    model = this.modelCompiler.compile(modelName, schema, groovyFile);
+    var model = this.modelCompiler.compile(modelName, schema, groovyFile);
     this.addModel(modelName, model);
 
     return this.getModel(modelName);

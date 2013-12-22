@@ -4,6 +4,8 @@ var Model = require("./model"),
     Property = require("./properties/property");
 
 module.exports = Schema = (function() {
+  'use strict';
+
   /**
    * The definition of a Model class
    *
@@ -41,7 +43,7 @@ module.exports = Schema = (function() {
    */
   Schema.prototype.add = function(properties) {
     _.each(properties, function(propertyDefinition, propertyName) {
-      property = Property.build(propertyName, propertyDefinition);
+      var property = Property.build(propertyName, propertyDefinition);
       this.properties[propertyName] = property;
     }, this);
   };

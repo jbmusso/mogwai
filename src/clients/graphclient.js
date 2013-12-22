@@ -1,4 +1,6 @@
 module.exports = (function () {
+  'use strict';
+
   /**
    * The main abstract GraphClient class.
    *

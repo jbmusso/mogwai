@@ -5,6 +5,8 @@ var _ = require("underscore");
 var RestGraphClient = require("./RestGraphClient");
 
 module.exports = (function(){
+  'use strict';
+
   /**
    * A Class describing the behavior of Mogwai when interacting with a Titan
    * server.

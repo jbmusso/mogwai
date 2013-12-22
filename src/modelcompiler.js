@@ -7,6 +7,8 @@ var Model = require("./model"),
     GroovyParser = require("./groovy/groovyparser");
 
 module.exports = (function() {
+  'use strict';
+
   /**
    * Class responsible for compiling a Schema into a Model class.
    * Model Compilation is only done once at startup

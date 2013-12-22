@@ -1,4 +1,6 @@
 module.exports = (function () {
+  'use strict';
+
   /**
    * Execute Gremlin scripts on the client (Rexster, Titan...)
    * @see https://github.com/espeed/bulbs/blob/master/bulbs/gremlin.py

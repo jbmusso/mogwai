@@ -3,6 +3,7 @@ var inherits = require("inherits");
 var Property = require("./property");
 
 module.exports = (function () {
+  'use strict';
 
   function ElementProperty() {
     Property.apply(this, arguments); // Call parent constructor

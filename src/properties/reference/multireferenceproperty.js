@@ -3,6 +3,7 @@ var inherits = require("inherits");
 var ReferenceProperty = require("./referenceproperty");
 
 module.exports = (function () {
+  'use strict';
 
   function MultiReferenceProperty() {
     ReferenceProperty.apply(this, arguments); // Call parent constructor

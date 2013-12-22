@@ -6,6 +6,8 @@ var GraphClient = require("./graphclient"),
     GroovyScript = require("../groovy/groovyscript");
 
 module.exports = (function(){
+  'use strict';
+
   /**
    * A Class describing the behavior of Mogwai when interacting with a Rexster
    * server.

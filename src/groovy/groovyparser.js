@@ -2,6 +2,7 @@ var Utils = require("../utils");
 var GroovyFunction = require("./groovyfunction");
 
 module.exports = (function () {
+  'use strict';
 
   function GroovyParser() {
   }

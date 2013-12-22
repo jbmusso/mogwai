@@ -6,6 +6,8 @@ var Titan = require("titan-node");
 var GraphConnection = require("./graphconnection");
 
 module.exports = (function() {
+  'use strict';
+
   /**
    * TitanJavaGraphConnection class to the graph database
    */

@@ -1,7 +1,8 @@
 var _ = require("underscore");
 
-
 module.exports = (function () {
+  'use strict';
+
   /**
    * Initializes raw elements fetched from the database as Mogwai models.
    *

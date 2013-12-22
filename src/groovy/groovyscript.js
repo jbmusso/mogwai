@@ -1,4 +1,5 @@
 module.exports = (function () {
+  'use strict';
 
   function GroovyScript(stringDefinition) {
     this.setDefinition(stringDefinition);

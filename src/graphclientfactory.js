@@ -4,6 +4,8 @@ var TitanJavaGraphClient = require("./clients/titanjavagraphclient");
 
 
 module.exports = (function() {
+  'use strict';
+
   function GraphClientFactory(mogwai) {
     this.mogwai = mogwai;
   }
