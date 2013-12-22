@@ -15,6 +15,10 @@ module.exports = (function() {
 
   inherits(GraphConnection, EventEmitter);
 
+  GraphConnection.prototype.open = function(settings, callback) {
+    throw new Error("Not yet implemented");
+  };
+
   GraphConnection.prototype.close = function() {
     this.g = null;
   };
