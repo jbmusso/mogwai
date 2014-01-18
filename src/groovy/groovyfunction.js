@@ -1,4 +1,5 @@
 var inherits = require("inherits");
+var _ = require('underscore')
 
 var GroovyScript = require("./groovyscript");
 

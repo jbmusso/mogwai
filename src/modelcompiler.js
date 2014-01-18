@@ -141,6 +141,7 @@ module.exports = (function() {
     return function() {
       // Get optional callback as last parameter)
       var callback = _.last(arguments);
+      var params;
 
       if (typeof _.last(arguments) === "function") {
         params = _.initial(arguments);
