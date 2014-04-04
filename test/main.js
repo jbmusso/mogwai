@@ -7,7 +7,7 @@ describe("Connection", function() {
     var settings = {
       host: "localhost",
       port: 8182,
-      graph: "test-graph",
+      graph: "tinkergraph",
       client: "titan"
     };
 

@@ -29,11 +29,7 @@ module.exports = Mogwai = (function() {
     this.connection = new Connection(this);
 
     // Register events
-    this.connection.on("open", function() {
-      self.client.createIndexes(function() {
-        self.emit("ready");
-      });
-    });
+    this.connection.on("open", this.onConnectionOpen.bind(this));
   }
 
   // Inherit from EventEmitter
@@ -41,6 +37,12 @@ module.exports = Mogwai = (function() {
   Mogwai.prototype.constructor = Mogwai;
 
   Mogwai.prototype.Schema = Schema;
+
+  Mogwai.prototype.onConnectionOpen = function() {
+    this.client.createIndexes(function(err, response) {
+      this.emit("ready");
+    }.bind(this));
+  };
 
   /**
    * Instantiate the appropriate graph database client, and ask the Connection
@@ -54,6 +56,10 @@ module.exports = Mogwai = (function() {
 
     this.buildClient();
     this.connection.open(callback);
+
+    this.on('ready', function() {
+      return callback(null, this.connection);
+    }.bind(this));
   };
 
   /**

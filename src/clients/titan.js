@@ -35,20 +35,13 @@ module.exports = TitanClient = (function(){
    * @param {Function} callback
    */
   TitanClient.prototype.createIndexes = function(callback) {
-    var self = this;
-
     this.getExistingTypes()
-    .then(function(result) {
-      alreadyIndexedKeys = result.results;
-      return self.buildMakeKeyPromise(alreadyIndexedKeys);
-    })
-    .then(function(success) {
+    .then(function(response) {
+      alreadyIndexedKeys = response.results;
+      return this.buildMakeKeyPromise(alreadyIndexedKeys);
+    }.bind(this))
+    .done(function(success) {
       callback(null, success);
-    })
-    .fail(function(error) {
-      console.error("[Mogwai][TitanClient] Error creating indexes");
-      console.error(error);
-      callback(error);
     });
   };
 
@@ -58,9 +51,9 @@ module.exports = TitanClient = (function(){
    * @return {Promise}
    */
   TitanClient.prototype.getExistingTypes = function() {
-    var g = this.mogwai.connection.grex;
+    var gremlin = this.mogwai.connection.grex.gremlin();
 
-    return g.getIndexedKeys("Vertex.class");
+    return gremlin.g.getIndexedKeys("Vertex.class").exec();
   };
 
   /**
@@ -77,11 +70,14 @@ module.exports = TitanClient = (function(){
         g = this.mogwai.connection.grex,
         models = this.mogwai.models,
         schemaProperties,
-        property, titanKey;
+        property,
+        titanKey;
+
+    var gremlin = this.mogwai.connection.grex.gremlin();
 
     // Make sure we index the Mogwai special $type key used for binding a model type to a vertex.
     if (alreadyIndexedKeys.indexOf("$type") === -1) {
-      promises.push(g.makeKey("$type").dataType("String.class").indexed("Vertex.class").make());
+      gremlin.g.makeKey("$type").dataType("String.class").indexed("Vertex.class").make();
     }
 
     // Also index keys defined for each model, but skip already indexed keys
@@ -93,18 +89,20 @@ module.exports = TitanClient = (function(){
         if (alreadyIndexedKeys.indexOf(propertyName) === -1) {
           property = schemaProperties[propertyName];
 
-          titanKey = g.makeKey(propertyName).dataType(property.getDataType()).indexed("Vertex.class");
+          titanKey = gremlin.g.makeKey(propertyName).dataType(property.getDataType()).indexed("Vertex.class");
 
           if (property.isUnique()) {
             titanKey.unique();
           }
 
-          promises.push(titanKey.make());
+          titanKey.make();
         }
       }
     }
 
-    return Q.all(promises);
+    var promise = gremlin.exec();
+
+    return promise;
   };
 
 

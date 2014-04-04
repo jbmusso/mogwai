@@ -22,18 +22,16 @@ module.exports = Connection = (function() {
    * @param {Function} callback
    */
   Connection.prototype.open = function(callback) {
-    var self = this;
+    grex.connect(this.mogwai.settings, this.onConnected.bind(this));
+  };
 
-    grex.connect(this.mogwai.settings)
-    .then(function (graphDB) {
-      self.grex = graphDB;
-      self.emit("open");
-
-      return callback(null, graphDB);
-    })
-    .fail(function(error) {
-      return console.log(error);
-    });
+  Connection.prototype.onConnected = function(err, client) {
+    if (err) {
+      console.log(error);
+    } else {
+      this.grex = client;
+      this.emit('open');
+    }
   };
 
   return Connection;
