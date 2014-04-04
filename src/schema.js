@@ -1,5 +1,6 @@
-var Model = require("./model"),
-    Property = require("./properties/property");
+var Model = require("./model");
+var Property = require("./properties/property");
+
 
 var Schema = (function() {
   /**

@@ -1,5 +1,6 @@
 var Property = require("./property");
 
+
 var StringProperty = (function() {
 
   function StringProperty() {

@@ -1,5 +1,7 @@
-var grex = require("grex"),
-    EventEmitter = require("events").EventEmitter;
+var EventEmitter = require("events").EventEmitter;
+
+var grex = require("grex");
+
 
 var Connection = (function() {
   /**

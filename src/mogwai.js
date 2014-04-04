@@ -1,15 +1,15 @@
-var path = require("path"),
-    fs = require("fs");
+var path = require("path");
+var fs = require("fs");
+var EventEmitter = require("events").EventEmitter;
 
-var Schema = require("./schema"),
-    Model = require("./model"),
-    Connection = require("./connection"),
-    ModelCompiler = require("./modelcompiler"),
-    EventEmitter = require("events").EventEmitter,
-    TitanClient = require("./clients/titan"),
-    RexsterClient = require("./clients/rexster"),
-    Utils = require("./utils"),
-    ElementInitializer = require("./elementinitializer");
+var Schema = require("./schema");
+var Model = require("./model");
+var Connection = require("./connection");
+var ModelCompiler = require("./modelcompiler");
+var TitanClient = require("./clients/titan");
+var RexsterClient = require("./clients/rexster");
+var Utils = require("./utils");
+var ElementInitializer = require("./elementinitializer");
 
 
 var Mogwai = (function() {

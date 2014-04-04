@@ -1,9 +1,11 @@
-var _ = require("lodash"),
-    fs = require("fs");
+var fs = require("fs");
 
-var Model = require("./model"),
-    __extends = require("./extends"),
-    GroovyParser = require("./groovy/groovyparser");
+var _ = require("lodash");
+
+var Model = require("./model");
+var GroovyParser = require("./groovy/groovyparser");
+var __extends = require("./extends");
+
 
 var ModelCompiler = (function() {
   /**

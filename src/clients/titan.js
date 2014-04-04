@@ -2,6 +2,7 @@ var _ = require('lodash');
 
 var RexsterClient = require("./rexster");
 
+
 var TitanClient = (function() {
   /**
    * A Class describing the behavior of Mogwai when interacting with a Titan

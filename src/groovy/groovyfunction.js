@@ -1,5 +1,6 @@
 var GroovyScript = require("./groovyscript");
 
+
 var GroovyFunction = (function() {
   /**
    * A class representing a Groovy function defined in a .groovy file.
