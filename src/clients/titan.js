@@ -52,7 +52,7 @@ var TitanClient = (function() {
    * @return {Promise}
    */
   TitanClient.prototype.getExistingTypes = function() {
-    var gremlin = this.mogwai.connection.grex.gremlin();
+    var gremlin = this.mogwai.connection.client.gremlin();
 
     return gremlin.g.getIndexedKeys("Vertex.class").exec();
   };
@@ -67,13 +67,12 @@ var TitanClient = (function() {
    * @return {Promise} to create all keys
    */
   TitanClient.prototype.buildMakeKeyPromise = function(alreadyIndexedKeys) {
-    var g = this.mogwai.connection.grex;
     var models = this.mogwai.models;
     var schemaProperties;
     var property;
     var titanKey;
 
-    var gremlin = this.mogwai.connection.grex.gremlin();
+    var gremlin = this.mogwai.connection.client.gremlin();
 
     // Make sure we index the Mogwai special $type key used for binding a model type to a vertex.
     if (alreadyIndexedKeys.indexOf("$type") === -1) {

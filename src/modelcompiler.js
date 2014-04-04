@@ -55,7 +55,7 @@ var ModelCompiler = (function() {
     // Define grex getter
     var g = {
       get: function() {
-        return this.mogwai.connection.grex;
+        return this.mogwai.connection.client;
       }.bind(this)
     };
     Object.defineProperty(model, "g", g);

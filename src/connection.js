@@ -12,7 +12,7 @@ var Connection = (function() {
    */
   function Connection(mogwai) {
     this.mogwai = mogwai;
-    this.grex = null;
+    this.client = null;
   }
 
   inherits(Connection, EventEmitter);
@@ -30,7 +30,7 @@ var Connection = (function() {
     if (err) {
       console.log(error);
     } else {
-      this.grex = client;
+      this.client = client;
       this.emit('open');
     }
   };
