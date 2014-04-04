@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 var RexsterClient = require("./rexster");
 
 var TitanClient = (function(){
@@ -78,14 +80,12 @@ var TitanClient = (function(){
     }
 
     // Also index keys defined for each model, but skip already indexed keys
-    for (var i in models) {
-      schemaProperties = models[i].schema.properties;
+    _.each(models, function(model) {
+      schemaProperties = model.schema.properties;
 
-      for (var propertyName in schemaProperties) {
+      _.each(schemaProperties, function(property, propertyName) {
         // Only index keys that were not indexed before, skip otherwise
         if (alreadyIndexedKeys.indexOf(propertyName) === -1) {
-          property = schemaProperties[propertyName];
-
           titanKey = gremlin.g.makeKey(propertyName).dataType(property.getDataType()).indexed("Vertex.class");
 
           if (property.isUnique()) {
@@ -94,8 +94,8 @@ var TitanClient = (function(){
 
           titanKey.make();
         }
-      }
-    }
+      });
+    });
 
     var promise = gremlin.exec();
 
