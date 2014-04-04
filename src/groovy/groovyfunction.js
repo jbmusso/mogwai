@@ -1,3 +1,5 @@
+var inherits = require('util').inherits;
+
 var GroovyScript = require("./groovyscript");
 
 
@@ -12,9 +14,7 @@ var GroovyFunction = (function() {
     this.params = [];
   }
 
-  // Inherit from GroovyScript
-  GroovyFunction.prototype = Object.create(GroovyScript.prototype);
-  GroovyFunction.prototype.constructor = GroovyFunction;
+  inherits(GroovyFunction, GroovyScript);
 
   /**
    * Return the name of the Groovy function, as defined in its signature

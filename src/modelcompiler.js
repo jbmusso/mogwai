@@ -1,10 +1,10 @@
 var fs = require("fs");
+var inherits = require('util').inherits;
 
 var _ = require("lodash");
 
 var Model = require("./model");
 var GroovyParser = require("./groovy/groovyparser");
-var __extends = require("./extends");
 
 
 var ModelCompiler = (function() {
@@ -35,17 +35,12 @@ var ModelCompiler = (function() {
    */
   ModelCompiler.prototype.compile = function(name, schema, customGroovyFileContent) {
     // Create a model class, inheriting from base Model
-    model = (function (_super) {
-      // Inherit from Model
-      __extends(model, _super);
 
-      function model() {
-        return model.__super__.constructor.apply(this, arguments);
-      }
+    function model() {
+      return Model.apply(this, arguments);
+    }
 
-      return model;
-
-    })(Model);
+    inherits(model, Model);
 
     // Make that Model class aware of the full Mogwai environment
     model.prototype.mogwai = model.mogwai = this.mogwai;

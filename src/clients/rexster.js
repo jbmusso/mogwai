@@ -1,3 +1,5 @@
+var inherits = require('util').inherits;
+
 var request = require("request");
 
 var Client = require("../client");
@@ -13,12 +15,10 @@ var RexsterClient = (function() {
    * @param {Mogwai} mogwai
    */
   function RexsterClient(mogwai) {
-    Client.apply(this, arguments); // Call parent constructor
+    Client.apply(this, arguments);
   }
 
-  // Inherit from Client
-  RexsterClient.prototype = Object.create(Client.prototype);
-  RexsterClient.prototype.constructor = RexsterClient;
+  inherits(RexsterClient, Client);
 
   /**
    * Asynchronously send a Gremlin script to the server for execution via

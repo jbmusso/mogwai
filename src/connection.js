@@ -1,3 +1,4 @@
+var inherits = require('util').inherits;
 var EventEmitter = require("events").EventEmitter;
 
 var grex = require("grex");
@@ -14,9 +15,7 @@ var Connection = (function() {
     this.grex = null;
   }
 
-  // Inherit from EventEmitter
-  Connection.prototype = Object.create(EventEmitter.prototype);
-  Connection.prototype.constructor = Connection;
+  inherits(Connection, EventEmitter);
 
   /**
    * Opens a connection to Grex.

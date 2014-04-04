@@ -1,3 +1,5 @@
+var inherits = require('util').inherits;
+
 var _ = require('lodash');
 
 var RexsterClient = require("./rexster");
@@ -11,12 +13,10 @@ var TitanClient = (function() {
    * @param {Mogwai} mogwai
    */
   function TitanClient(mogwai) {
-    RexsterClient.apply(this, arguments); // Call parent constructor
+    RexsterClient.apply(this, arguments);
   }
 
-  // Inherit from RexsterClient
-  TitanClient.prototype = Object.create(RexsterClient.prototype);
-  TitanClient.prototype.constructor = TitanClient;
+  inherits(TitanClient, RexsterClient);
 
   /**
    * Asynchronously build Titan types, used for indexing

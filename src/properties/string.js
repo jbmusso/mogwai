@@ -1,15 +1,15 @@
+var inherits = require('util').inherits;
+
 var Property = require("./property");
 
 
 var StringProperty = (function() {
 
   function StringProperty() {
-    Property.apply(this, arguments); // Call parent constructor
+    Property.apply(this, arguments);
   }
 
-  // Inherit from Property
-  StringProperty.prototype = Object.create(Property.prototype);
-  StringProperty.prototype.constructor = StringProperty;
+  inherits(StringProperty, Property);
 
 
   return StringProperty;

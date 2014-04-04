@@ -1,6 +1,7 @@
 var path = require("path");
 var fs = require("fs");
 var EventEmitter = require("events").EventEmitter;
+var inherits = require('util').inherits;
 
 var Schema = require("./schema");
 var Model = require("./model");
@@ -31,9 +32,7 @@ var Mogwai = (function() {
     this.connection.on("open", this.onConnectionOpen.bind(this));
   }
 
-  // Inherit from EventEmitter
-  Mogwai.prototype = Object.create(EventEmitter.prototype);
-  Mogwai.prototype.constructor = Mogwai;
+  inherits(Mogwai, EventEmitter);
 
   Mogwai.prototype.Schema = Schema;
 
