@@ -8,7 +8,7 @@ module.exports = Utils = {
    */
   getCaller: function() {
     var stack = getStack();
-    return stack[4].receiver;
+    return stack[3].receiver;
   }
 };
 

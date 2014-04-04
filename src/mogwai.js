@@ -153,6 +153,8 @@ module.exports = Mogwai = (function() {
       groovyFile = fs.readFileSync(groovyFilePath, "utf8");
 
       return groovyFile;
+    } else {
+      return '';
     }
   };
 

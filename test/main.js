@@ -31,7 +31,7 @@ describe("Schemas", function() {
   });
 
   it("should compile a model", function(done) {
-    should.exist(mogwai.models[schemaName]);
+    should.exist(mogwai.models[schemaName.toLowerCase()]);
     done();
   });
 
