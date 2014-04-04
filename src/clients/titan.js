@@ -35,7 +35,7 @@ var TitanClient = (function() {
    *
    * @param {Function} callback
    */
-  TitanClient.prototype.createIndexes = function(callback) {
+  TitanClient.prototype.initialize = function(callback) {
     this.getExistingTypes()
     .then(function(response) {
       alreadyIndexedKeys = response.results;

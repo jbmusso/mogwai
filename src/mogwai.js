@@ -37,7 +37,7 @@ var Mogwai = (function() {
   Mogwai.prototype.Schema = Schema;
 
   Mogwai.prototype.onConnectionOpen = function() {
-    this.client.createIndexes(function(err, response) {
+    this.client.initialize(function(err, response) {
       this.emit("ready");
     }.bind(this));
   };

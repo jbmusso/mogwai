@@ -146,7 +146,7 @@ var RexsterClient = (function() {
   /**
    * TODO: handle indexes
    */
-  RexsterClient.prototype.createIndexes = function() {
+  RexsterClient.prototype.initialize = function() {
     return;
   };
 
