@@ -11,11 +11,15 @@ describe("Model", function() {
     done();
   });
 
-  it("should have default methods findByKeyValue and findById", function(done) {
-    should.exist(model.findByKeyValue);
-    should.exist(model.findById);
-    model.findByKeyValue.should.be.a("function");
-    model.findById.should.be.a("function");
-    done();
+  describe('Methods', function() {
+    it("should have findById method", function() {
+      should.exist(model.findById);
+      model.findById.should.be.a("function");
+    });
+
+    it("should have findByKeyValue method", function() {
+      should.exist(model.findByKeyValue);
+      model.findByKeyValue.should.be.a("function");
+    });
   });
 });
