@@ -32,8 +32,6 @@ module.exports = ModelCompiler = (function() {
    * @return {Function} - Model constructor
    */
   ModelCompiler.prototype.compile = function(name, schema, customGroovyFileContent) {
-    var self = this;
-
     // Create a model class, inheriting from base Model
     model = (function (_super) {
       // Inherit from Model
@@ -48,8 +46,8 @@ module.exports = ModelCompiler = (function() {
     })(Model);
 
     // Make that Model class aware of the full Mogwai environment
-    model.prototype.mogwai = model.mogwai = self.mogwai;
-    model.prototype.connection = model.connection = self.mogwai.connection; //todo: replace by a getter? or simply remove?
+    model.prototype.mogwai = model.mogwai = this.mogwai;
+    model.prototype.connection = model.connection = this.mogwai.connection; //todo: replace by a getter? or simply remove?
 
     // Define a special "$type" key used to identify vertices of that model
     // type in the graph.
@@ -59,7 +57,9 @@ module.exports = ModelCompiler = (function() {
 
     // Define grex getter
     var g = {
-      get: function() { return self.mogwai.connection.grex; }
+      get: function() {
+        return this.mogwai.connection.grex;
+      }.bind(this)
     };
     Object.defineProperty(model, "g", g);
     Object.defineProperty(model.prototype, "g", g);
@@ -68,7 +68,7 @@ module.exports = ModelCompiler = (function() {
     var gremlin = {
       get: function() {
         // TODO: find a way to avoid bind() trick? remove getter?
-        return self.mogwai.client.gremlin.bind(self.mogwai.client);
+        return this.mogwai.client.gremlin.bind(this.mogwai.client);
       }
     };
     Object.defineProperty(model, "gremlin", gremlin);

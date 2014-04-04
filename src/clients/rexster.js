@@ -36,7 +36,6 @@ module.exports = RexsterClient = (function(){
       return callback(new Error("Script must be an instance of GroovyScript"));
     }
 
-    var self = this;
     var settings = this.mogwai.settings;
     var url = "http://"+ settings.host +":"+ settings.port +"/graphs/"+ settings.graph + path;
 
@@ -53,8 +52,8 @@ module.exports = RexsterClient = (function(){
     };
 
     request.get(options, function(err, res, body) {
-      self.handleResponse(err, body, callback);
-    });
+      this.handleResponse(err, body, callback);
+    }.bind(this));
   };
 
   /**

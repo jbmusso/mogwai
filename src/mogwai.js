@@ -16,8 +16,6 @@ module.exports = Mogwai = (function() {
    * The main Mogwai class, (currently) instantiated as a Singleton.
    */
   function Mogwai() {
-    var self = this;
-
     console.log("Loading Mogwai, object-to-graph mapper");
     this.schemas = {};
     this.models = {};
