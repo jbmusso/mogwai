@@ -1,8 +1,6 @@
-var Q = require("q");
-
 var RexsterClient = require("./rexster");
 
-module.exports = TitanClient = (function(){
+var TitanClient = (function(){
   /**
    * A Class describing the behavior of Mogwai when interacting with a Titan
    * server.
@@ -66,12 +64,11 @@ module.exports = TitanClient = (function(){
    * @return {Promise} to create all keys
    */
   TitanClient.prototype.buildMakeKeyPromise = function(alreadyIndexedKeys) {
-    var promises = [],
-        g = this.mogwai.connection.grex,
-        models = this.mogwai.models,
-        schemaProperties,
-        property,
-        titanKey;
+    var g = this.mogwai.connection.grex;
+    var models = this.mogwai.models;
+    var schemaProperties;
+    var property;
+    var titanKey;
 
     var gremlin = this.mogwai.connection.grex.gremlin();
 
@@ -109,3 +106,5 @@ module.exports = TitanClient = (function(){
   return TitanClient;
 
 })();
+
+module.exports = TitanClient;
