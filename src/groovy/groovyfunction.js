@@ -1,6 +1,6 @@
 var GroovyScript = require("./groovyscript");
 
-module.exports = (function () {
+var GroovyFunction = (function() {
   /**
    * A class representing a Groovy function defined in a .groovy file.
    */
@@ -131,3 +131,5 @@ module.exports = (function () {
   return GroovyFunction;
 
 })();
+
+module.exports = GroovyFunction;

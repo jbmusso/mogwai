@@ -1,7 +1,7 @@
 var Model = require("./model"),
     Property = require("./properties/property");
 
-module.exports = Schema = (function() {
+var Schema = (function() {
   /**
    * The definition of a Model class
    *
@@ -99,3 +99,5 @@ module.exports = Schema = (function() {
   return Schema;
 
 })();
+
+module.exports = Schema;

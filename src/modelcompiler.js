@@ -5,7 +5,7 @@ var Model = require("./model"),
     __extends = require("./extends"),
     GroovyParser = require("./groovy/groovyparser");
 
-module.exports = ModelCompiler = (function() {
+var ModelCompiler = (function() {
   /**
    * Class responsible for compiling a Schema into a Model class.
    * Model Compilation is only done once at startup
@@ -159,3 +159,5 @@ module.exports = ModelCompiler = (function() {
   return ModelCompiler;
 
 })();
+
+module.exports = ModelCompiler;

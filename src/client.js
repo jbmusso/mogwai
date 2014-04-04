@@ -1,4 +1,4 @@
-module.exports = Client = (function () {
+var Client = (function() {
   /**
    * The main abstract Client class.
    *
@@ -11,3 +11,5 @@ module.exports = Client = (function () {
   return Client;
 
 })();
+
+module.exports = Client;

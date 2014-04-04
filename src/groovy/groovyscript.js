@@ -1,4 +1,4 @@
-module.exports = (function () {
+var GroovyScript = (function() {
 
   function GroovyScript(stringDefinition) {
     this.setDefinition(stringDefinition);
@@ -33,3 +33,5 @@ module.exports = (function () {
   return GroovyScript;
 
 })();
+
+module.exports = GroovyScript;

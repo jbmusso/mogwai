@@ -1,4 +1,4 @@
-module.exports = Utils = {
+var Utils = {
   /*
    * Get the full file path of the calling function.
    *
@@ -33,3 +33,5 @@ function getStack() {
 
   return stack;
 }
+
+module.exports = Utils;

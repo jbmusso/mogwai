@@ -1,4 +1,4 @@
-module.exports = Model = (function() {
+var Model = (function() {
 
   /**
    * Mogwai Model class
@@ -140,3 +140,5 @@ module.exports = Model = (function() {
   return Model;
 
 })();
+
+module.exports = Model;

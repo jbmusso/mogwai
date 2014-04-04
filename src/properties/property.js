@@ -1,4 +1,4 @@
-module.exports = Property = (function() {
+var Property = (function() {
   /**
    * An abstract Class defining a Model property.
    *
@@ -108,3 +108,5 @@ module.exports = Property = (function() {
   return Property;
 
 })();
+
+module.exports = Property;

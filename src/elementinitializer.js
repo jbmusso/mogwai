@@ -1,7 +1,7 @@
 var _ = require("lodash");
 
 
-module.exports = (function () {
+var ElementInitializer = (function() {
   /**
    * Initializes raw elements fetched from the database as Mogwai models.
    *
@@ -57,3 +57,5 @@ module.exports = (function () {
   return ElementInitializer;
 
 })();
+
+module.exports = ElementInitializer;

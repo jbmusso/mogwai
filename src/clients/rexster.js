@@ -4,7 +4,7 @@ var Client = require("../client"),
     Gremlin = require("../gremlin"),
     GroovyScript = require("../groovy/groovyscript");
 
-module.exports = RexsterClient = (function(){
+var RexsterClient = (function() {
   /**
    * A Class describing the behavior of Mogwai when interacting with a Rexster
    * server.
@@ -152,3 +152,5 @@ module.exports = RexsterClient = (function(){
   return RexsterClient;
 
 })();
+
+module.exports = RexsterClient;

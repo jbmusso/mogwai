@@ -1,4 +1,4 @@
-module.exports = (function () {
+var Gremlin = (function() {
   /**
    * Execute Gremlin scripts on the client (Rexster, Titan...)
    * @see https://github.com/espeed/bulbs/blob/master/bulbs/gremlin.py
@@ -46,3 +46,5 @@ module.exports = (function () {
   return Gremlin;
 
 })();
+
+module.exports = Gremlin;

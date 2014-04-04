@@ -1,7 +1,7 @@
 var grex = require("grex"),
     EventEmitter = require("events").EventEmitter;
 
-module.exports = Connection = (function() {
+var Connection = (function() {
   /**
    * Connection class to the graph database
    *
@@ -37,3 +37,5 @@ module.exports = Connection = (function() {
   return Connection;
 
 })();
+
+module.exports = Connection;

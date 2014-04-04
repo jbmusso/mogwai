@@ -1,6 +1,6 @@
 var Property = require("./property");
 
-module.exports = StringProperty = (function () {
+var StringProperty = (function() {
 
   function StringProperty() {
     Property.apply(this, arguments); // Call parent constructor
@@ -14,3 +14,5 @@ module.exports = StringProperty = (function () {
   return StringProperty;
 
 })();
+
+module.exports = StringProperty;

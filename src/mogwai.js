@@ -11,7 +11,8 @@ var Schema = require("./schema"),
     Utils = require("./utils"),
     ElementInitializer = require("./elementinitializer");
 
-module.exports = Mogwai = (function() {
+
+var Mogwai = (function() {
   /**
    * The main Mogwai class, (currently) instantiated as a Singleton.
    */
@@ -191,3 +192,5 @@ module.exports = Mogwai = (function() {
   return Mogwai;
 
 })();
+
+module.exports = Mogwai;
