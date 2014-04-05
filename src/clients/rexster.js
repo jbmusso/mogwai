@@ -2,7 +2,7 @@ var inherits = require('util').inherits;
 
 var request = require("request");
 
-var Client = require("../client");
+var Client = require("./client");
 var Gremlin = require("../gremlin");
 var GroovyScript = require("../groovy/groovyscript");
 
