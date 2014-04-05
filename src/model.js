@@ -60,7 +60,7 @@ var Model = (function() {
     var doc = this;
     var property;
     var properties = this.schema.properties;
-    var gremlin = this.g.gremlin();
+    var gremlin = this.client.gremlin();
 
     // Assign Mogwai reserved "$type" property
     doc.$type = this.$type;
