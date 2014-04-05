@@ -53,7 +53,7 @@ var Mogwai = (function() {
     this.settings = settings;
 
     this.client = this.buildClient();
-    this.connection.open(callback);
+    this.connection.open(settings);
 
     this.on('ready', function() {
       return callback(null, this.connection);

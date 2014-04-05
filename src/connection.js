@@ -10,8 +10,7 @@ var Connection = (function() {
    *
    * @param {Mogwai} mogwai
    */
-  function Connection(mogwai) {
-    this.mogwai = mogwai;
+  function Connection() {
     this.client = null;
   }
 
@@ -19,11 +18,9 @@ var Connection = (function() {
 
   /**
    * Opens a connection to Grex.
-   *
-   * @param {Function} callback
    */
-  Connection.prototype.open = function(callback) {
-    grex.connect(this.mogwai.settings, this.onConnected.bind(this));
+  Connection.prototype.open = function(settings) {
+    grex.connect(settings, this.onConnected.bind(this));
   };
 
   Connection.prototype.onConnected = function(err, client) {
