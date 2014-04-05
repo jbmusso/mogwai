@@ -10,23 +10,6 @@ var Model = (function() {
   function Model() {}
 
   /**
-   * Execute a Grex query.
-   *
-   * @param {Grex} grexQuery
-   * @param {Function} callback
-   */
-  Model.prototype.exec = function(grexQuery, callback) {
-    console.log("Grex:", grexQuery.params);
-
-    grexQuery.then(function(success) {
-      return callback(null, success);
-    }).fail(function(err) {
-      console.error(err);
-      return callback(err);
-    });
-  };
-
-  /**
    * Save a Model instance.
    * Will insert if new, or update if already present (currently checks for
    * the existence of a vertex _id).
@@ -59,7 +42,8 @@ var Model = (function() {
       propertiesMap[propertyName] = propertyValue;
     }
 
-    this.scripts.update(this._id, propertiesMap).execute(function(err, results) {
+    var script = this.scripts.update(this._id, propertiesMap);
+    script.execute(function(err, results) {
       return callback(err, results);
     });
   };
@@ -70,18 +54,17 @@ var Model = (function() {
    * @param {Function} callback
    */
   Model.prototype.insert = function(callback) {
-    var doc,
-        transaction,
-        property,
-        properties = this.schema.properties;
+    var doc;
+    var property;
+    var properties = this.schema.properties;
     var gremlin = this.g.gremlin();
 
     doc = this;
     // Assign Mogwai reserved "$type" property
     doc.$type = this.$type;
 
-    transaction = gremlin.g;
-    v = transaction.addVertex(doc.toObject());
+    var g = gremlin.g;
+    var v = g.addVertex(doc.toObject());
 
     for (var name in properties) {
       property = properties[name];
@@ -93,7 +76,7 @@ var Model = (function() {
       }
     }
 
-    return this.exec(gremlin.exec(), callback);
+    return gremlin.exec(callback);
   };
 
   /**
