@@ -126,6 +126,21 @@ var RexsterClient = (function() {
     this.executeScript(groovyScript, params, callback);
   };
 
+  RexsterClient.prototype.query =
+  RexsterClient.prototype.fetch = function(groovyScript, params, callback) {
+    if (groovyScript instanceof GroovyScript === false) {
+      return callback(new Error("Script must be an instance of GroovyScript"));
+    }
+
+    var gremlin = this.mogwai.connection.client.gremlin();
+    gremlin.script = groovyScript.getEscapedDefinition();
+    gremlin.params = JSON.stringify(groovyScript.getAppliedParameters(params));
+
+    gremlin.fetch(function(err, response) {
+      this.handleResponse(err, response, callback);
+    }.bind(this));
+  };
+
   /**
    * TODO: handle indexes
    */

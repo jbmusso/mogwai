@@ -30,18 +30,9 @@ var Gremlin = (function() {
    *
    * @param {Function} callback
    */
+  Gremlin.prototype.fetch =
   Gremlin.prototype.query = function(callback) {
-    var initializer = this.client.mogwai.elementInitializer;
-
-    this.client.exec(this.script, this.params, function(err, response) {
-      var elements = [];
-
-      if (!err) {
-        elements = initializer.initElements(response, response.results);
-      }
-
-      return callback(err, elements);
-    });
+    this.client.fetch(this.script, this.params, callback);
   };
 
   return Gremlin;
