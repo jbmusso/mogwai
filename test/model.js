@@ -30,4 +30,13 @@ describe('Model', function() {
       });
     });
   });
+
+  describe('findById()', function() {
+    it('should find a user by id', function() {
+      user.scripts.findById(user._id).query(function(err, response) {
+        should.not.exist(err);
+        should.exist(response);
+      });
+    });
+  });
 });
