@@ -18,8 +18,9 @@ var Gremlin = (function() {
    *
    * @param {Function} callback
    */
-  Gremlin.prototype.execute = function(callback) {
-    this.client.executeGremlin(this.script, this.params, callback);
+  Gremlin.prototype.execute =
+  Gremlin.prototype.exec = function(callback) {
+    this.client.exec(this.script, this.params, callback);
   };
 
   /**
@@ -32,7 +33,7 @@ var Gremlin = (function() {
   Gremlin.prototype.query = function(callback) {
     var initializer = this.client.mogwai.elementInitializer;
 
-    this.client.executeGremlin(this.script, this.params, function(err, body) {
+    this.client.exec(this.script, this.params, function(err, body) {
       var elements = [];
 
       if (!err) {

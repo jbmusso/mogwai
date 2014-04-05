@@ -114,7 +114,7 @@ var RexsterClient = (function() {
    * @param {Object} params - parameters to pass to the gremlin script
    * @param {Function} callback
    */
-  RexsterClient.prototype.executeGremlin = function(script, params, callback) {
+  RexsterClient.prototype.exec = function(script, params, callback) {
     var groovyScript;
 
     if (script instanceof GroovyScript) {
