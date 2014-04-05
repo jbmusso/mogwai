@@ -53,13 +53,13 @@ var ModelCompiler = (function() {
     model.prototype.schema = model.schema = schema;
 
     // Define grex getter
-    var g = {
+    var client = {
       get: function() {
         return this.mogwai.connection.client;
       }.bind(this)
     };
-    Object.defineProperty(model, "g", g);
-    Object.defineProperty(model.prototype, "g", g);
+    Object.defineProperty(model, "client", client);
+    Object.defineProperty(model.prototype, "client", client);
 
     // Define Gremlin getter
     var gremlin = {

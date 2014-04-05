@@ -43,7 +43,7 @@ describe('Model', function() {
 
   describe('fetch()', function() {
     it('should post process results', function(done) {
-      var gremlin = user.g.gremlin();
+      var gremlin = user.client.gremlin();
 
       gremlin.g.V().fetch(function(err, users) {
         should.not.exist(err);
