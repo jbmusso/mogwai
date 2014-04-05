@@ -22,8 +22,8 @@ describe('Model', function() {
   });
 
   describe('save()', function() {
-    it('should save the model to the graph database', function(done) {
-      user.save(function(err, response) {
+    it('should insert a new model to the graph database', function(done) {
+      user.save(function(err, user, response) {
         should.not.exist(err);
         should.exist(response);
         done();

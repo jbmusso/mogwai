@@ -1,3 +1,6 @@
+var _ = require('lodash');
+
+
 var Model = (function() {
 
   /**
@@ -76,7 +79,13 @@ var Model = (function() {
       }
     }
 
-    return gremlin.exec(callback);
+    return gremlin.exec(this.sync.bind(this, callback));
+  };
+
+  Model.prototype.sync = function(callback, err, response) {
+    var data = response.results[0];
+    _.extend(this, data);
+    callback(err, this, response);
   };
 
   /**
