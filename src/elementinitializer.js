@@ -20,9 +20,9 @@ var ElementInitializer = (function() {
    *      raw {Object} elements
    */
   ElementInitializer.prototype.initElements = function(responseBody) {
-    var rawElement,
-        i,
-        elements = [];
+    var rawElement;
+    var i;
+    var elements = [];
 
     for (i = 0; i < responseBody.results.length; i++) {
       rawElement = responseBody.results[i];
@@ -42,11 +42,9 @@ var ElementInitializer = (function() {
    * @return {Model|Object}
    */
   ElementInitializer.prototype.initElement = function(rawElement) {
-    var element, elementClass;
-
     if (this.mogwai.hasModel(rawElement.$type)) {
-      elementClass = this.mogwai.getModel(rawElement.$type);
-      element = new elementClass();
+      var elementClass = this.mogwai.getModel(rawElement.$type);
+      var element = new elementClass();
       _.extend(element, rawElement);
       return element;
     } else {

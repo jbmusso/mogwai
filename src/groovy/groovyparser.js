@@ -15,8 +15,8 @@ var GroovyParser = (function() {
    * @return {Object} - map of GroovyFunction
    */
   GroovyParser.prototype.scan = function(fileContent) {
-    var line,
-        functionsContainer = {};
+    var line;
+    var functionsContainer = {};
 
     fileContent = fileContent.split("\n");
 

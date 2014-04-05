@@ -152,11 +152,10 @@ var Mogwai = (function() {
     // Read groovy file content if present
     var fileName = path.basename(pathToCaller, path.extname(pathToCaller));
     var groovyFilePath = path.dirname(pathToCaller)+"/"+fileName+".groovy";
-    var groovyFile;
 
     if (fs.existsSync(groovyFilePath)) {
       console.log("Found Gremlin .groovy file for "+ modelName +" Schema");
-      groovyFile = fs.readFileSync(groovyFilePath, "utf8");
+      var groovyFile = fs.readFileSync(groovyFilePath, "utf8");
 
       return groovyFile;
     } else {

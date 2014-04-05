@@ -67,12 +67,8 @@ var TitanClient = (function() {
    * @return {Promise} to create all keys
    */
   TitanClient.prototype.buildMakeKeyPromise = function(alreadyIndexedKeys) {
-    var models = this.mogwai.models;
-    var schemaProperties;
-    var property;
-    var titanKey;
-
     var gremlin = this.mogwai.connection.client.gremlin();
+    var titanKey;
 
     // Make sure we index the Mogwai special $type key used for binding a model type to a vertex.
     if (alreadyIndexedKeys.indexOf("$type") === -1) {
@@ -80,10 +76,8 @@ var TitanClient = (function() {
     }
 
     // Also index keys defined for each model, but skip already indexed keys
-    _.each(models, function(model) {
-      schemaProperties = model.schema.properties;
-
-      _.each(schemaProperties, function(property, propertyName) {
+    _.each(this.mogwai.models, function(model) {
+      _.each(model.schema.properties, function(property, propertyName) {
         // Only index keys that were not indexed before, skip otherwise
         if (alreadyIndexedKeys.indexOf(propertyName) === -1) {
           titanKey = gremlin.g.makeKey(propertyName).dataType(property.getDataType()).indexed("Vertex.class");
@@ -97,9 +91,7 @@ var TitanClient = (function() {
       });
     });
 
-    var promise = gremlin.exec();
-
-    return promise;
+    return gremlin.exec();
   };
 
 

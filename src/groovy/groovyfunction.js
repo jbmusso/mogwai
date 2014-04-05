@@ -79,8 +79,8 @@ var GroovyFunction = (function() {
    * @return {Object} - Object mapping param names to their value
    */
   GroovyFunction.prototype.getAppliedParameters = function(params) {
-    var currentParam,
-        appliedParameters = {};
+    var currentParam;
+    var appliedParameters = {};
 
     for (var i = 0; i < this.params.length; i++) {
       currentParam = this.params[i];

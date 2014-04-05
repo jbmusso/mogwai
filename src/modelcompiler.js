@@ -120,7 +120,9 @@ var ModelCompiler = (function() {
    */
   ModelCompiler.prototype.attachGroovyFunctions = function(model, customGroovyFileContent) {
     var groovyFunctions = this.groovyParser.scan(customGroovyFileContent);
-    var fnName, fnBody, groovyFunctionGetter;
+    var fnName;
+    var fnBody;
+    var groovyFunctionGetter;
 
     for (fnName in groovyFunctions) {
       fnBody = groovyFunctions[fnName];

@@ -36,8 +36,8 @@ var Model = (function() {
    * @param {Function} callback
    */
   Model.prototype.update = function(callback) {
-    var propertiesMap = {},
-        propertyValue;
+    var propertiesMap = {};
+    var propertyValue;
 
     // Build property map only for properties defined in the Schema
     for (var propertyName in this.schema.properties) {
@@ -57,17 +57,15 @@ var Model = (function() {
    * @param {Function} callback
    */
   Model.prototype.insert = function(callback) {
-    var doc;
+    var doc = this;
     var property;
     var properties = this.schema.properties;
     var gremlin = this.g.gremlin();
 
-    doc = this;
     // Assign Mogwai reserved "$type" property
     doc.$type = this.$type;
 
-    var g = gremlin.g;
-    var v = g.addVertex(doc.toObject());
+    var v = gremlin.g.addVertex(doc.toObject());
 
     for (var name in properties) {
       property = properties[name];
