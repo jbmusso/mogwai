@@ -52,7 +52,7 @@ var Mogwai = (function() {
   Mogwai.prototype.connect = function(settings, callback) {
     this.settings = settings;
 
-    this.buildClient();
+    this.client = this.buildClient();
     this.connection.open(callback);
 
     this.on('ready', function() {
@@ -69,7 +69,9 @@ var Mogwai = (function() {
       rexster: RexsterClient
     };
 
-    this.client = new clients[this.settings.client.toLowerCase()](this);
+    var Client = clients[this.settings.client.toLowerCase()];
+
+    return new Client(this);
   };
 
   /**
