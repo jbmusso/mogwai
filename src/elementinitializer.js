@@ -19,13 +19,13 @@ var ElementInitializer = (function() {
    * @return {Array} - An array of Mogwai {Model} instances and/or
    *      raw {Object} elements
    */
-  ElementInitializer.prototype.initElements = function(responseBody) {
+  ElementInitializer.prototype.initElements = function(response, results) {
     var rawElement;
     var i;
     var elements = [];
 
-    for (i = 0; i < responseBody.results.length; i++) {
-      rawElement = responseBody.results[i];
+    for (i = 0; i < results.length; i++) {
+      rawElement = results[i];
       elements.push(this.initElement(rawElement));
     }
 

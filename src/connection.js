@@ -19,7 +19,8 @@ var Connection = (function() {
   /**
    * Opens a connection to Grex.
    */
-  Connection.prototype.open = function(settings) {
+  Connection.prototype.open = function(settings, fetchedProcessor) {
+    settings.fetched = fetchedProcessor;
     grex.connect(settings, this.onConnected.bind(this));
   };
 

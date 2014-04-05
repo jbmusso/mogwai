@@ -33,11 +33,11 @@ var Gremlin = (function() {
   Gremlin.prototype.query = function(callback) {
     var initializer = this.client.mogwai.elementInitializer;
 
-    this.client.exec(this.script, this.params, function(err, body) {
+    this.client.exec(this.script, this.params, function(err, response) {
       var elements = [];
 
       if (!err) {
-        elements = initializer.initElements(body);
+        elements = initializer.initElements(response, response.results);
       }
 
       return callback(err, elements);

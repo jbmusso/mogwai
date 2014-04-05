@@ -53,7 +53,9 @@ var Mogwai = (function() {
     this.settings = settings;
 
     this.client = this.buildClient();
-    this.connection.open(settings);
+
+    var fetchedHandler = this.elementInitializer.initElements.bind(this.elementInitializer);
+    this.connection.open(settings, fetchedHandler);
 
     this.on('ready', function() {
       return callback(null, this.connection);

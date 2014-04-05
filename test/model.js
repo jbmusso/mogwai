@@ -32,10 +32,24 @@ describe('Model', function() {
   });
 
   describe('findById()', function() {
-    it('should find a user by id', function() {
+    it('should find a user by id', function(done) {
       user.scripts.findById(user._id).query(function(err, response) {
         should.not.exist(err);
         should.exist(response);
+        done();
+      });
+    });
+  });
+
+  describe('fetch()', function() {
+    it('should post process results', function(done) {
+      var gremlin = user.g.gremlin();
+
+      gremlin.g.V().fetch(function(err, users) {
+        should.not.exist(err);
+        should.exist(users);
+        users[0].should.be.instanceOf(model);
+        done();
       });
     });
   });
