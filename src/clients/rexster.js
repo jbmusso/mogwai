@@ -1,7 +1,5 @@
 var inherits = require('util').inherits;
 
-var request = require("request");
-
 var Client = require("./client");
 var Gremlin = require("../gremlin");
 var GroovyScript = require("../groovy/groovyscript");
@@ -27,33 +25,21 @@ var RexsterClient = (function() {
    * Gremlin/Groovy scripts can be sent over with zero, one or more parameters
    * if required.
    *
-   * @param {String} path - path to Rexster endpoint
    * @param {GroovyScript} groovyScript - GroovyScript to execute
    * @param {Object} params - parameters bound to the Groovy function
    * @param {Function} callback
    */
-  RexsterClient.prototype.executeScript = function(path, groovyScript, params, callback) {
+  RexsterClient.prototype.executeScript = function(groovyScript, params, callback) {
     if (groovyScript instanceof GroovyScript === false) {
       return callback(new Error("Script must be an instance of GroovyScript"));
     }
 
-    var settings = this.mogwai.settings;
-    var url = "http://"+ settings.host +":"+ settings.port +"/graphs/"+ settings.graph + path;
+    var gremlin = this.mogwai.connection.client.gremlin();
+    gremlin.script = groovyScript.getEscapedDefinition();
+    gremlin.params = JSON.stringify(groovyScript.getAppliedParameters(params));
 
-    var options = {
-      uri: url,
-      qs: {
-        // Escape dollar sign
-        script: groovyScript.getEscapedDefinition(),
-        // Work around Rexster Gremlin extension not supporting bracket notation in QueryString for objects, but suppporting dot notation.
-        params: JSON.stringify(groovyScript.getAppliedParameters(params))
-      },
-      // Set JSON header, and automatically parse body
-      json: true
-    };
-
-    request.get(options, function(err, res, body) {
-      this.handleResponse(err, body, callback);
+    gremlin.exec(function(err, response) {
+      this.handleResponse(err, response, callback);
     }.bind(this));
   };
 
@@ -100,15 +86,13 @@ var RexsterClient = (function() {
    * @param {Function} callback - an optional callback
    */
   RexsterClient.prototype.gremlin = function(script, params, callback) {
-    var gremlin;
-
     // Handle case were no params were supplied
     if (typeof params === "function") {
       callback = params;
       params = null;
     }
 
-    gremlin = new Gremlin(this, script, params);
+    var gremlin = new Gremlin(this, script, params);
 
     // Execute now if a callback was supplied, or return Gremlin object for later execution.
     if (typeof callback === "function") {
@@ -139,8 +123,7 @@ var RexsterClient = (function() {
       groovyScript = new GroovyScript(script);
     }
 
-
-    this.executeScript("/tp/gremlin", groovyScript, params, callback);
+    this.executeScript(groovyScript, params, callback);
   };
 
   /**
