@@ -22,10 +22,11 @@ describe('Model', function() {
   });
 
   describe('save()', function() {
-    it('should save the model to the graph database', function() {
+    it('should save the model to the graph database', function(done) {
       user.save(function(err, response) {
         should.not.exist(err);
         should.exist(response);
+        done();
       });
     });
   });
