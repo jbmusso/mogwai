@@ -18,7 +18,7 @@ var GroovyParser = (function() {
     var line;
     var functionsContainer = {};
 
-    fileContent = fileContent.split("\n");
+    fileContent = fileContent ? fileContent.split("\n") : '';
 
     for (var i = 0; i < fileContent.length; i++) {
       line = fileContent[i];
