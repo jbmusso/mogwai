@@ -4,6 +4,9 @@ var Client = require("./client");
 var Gremlin = require("../gremlin");
 var GroovyScript = require("../groovy/groovyscript");
 
+var grex = require('grex');
+var gremlin = grex.gremlin;
+
 
 var RexsterClient = (function() {
   /**
@@ -132,11 +135,13 @@ var RexsterClient = (function() {
       return callback(new Error("Script must be an instance of GroovyScript"));
     }
 
-    var gremlin = this.mogwai.connection.client.gremlin();
-    gremlin.script = groovyScript.getEscapedDefinition();
-    gremlin.params = JSON.stringify(groovyScript.getAppliedParameters(params));
+    var client = this.mogwai.connection.client;
+    var query = gremlin();
 
-    gremlin.fetch(function(err, response) {
+    query.script = groovyScript.getEscapedDefinition();
+    query.params = JSON.stringify(groovyScript.getAppliedParameters(params));
+
+    client.fetch(query, function(err, response) {
       this.handleResponse(err, response, callback);
     }.bind(this));
   };

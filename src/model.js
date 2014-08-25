@@ -1,5 +1,9 @@
 var _ = require('lodash');
 
+var grex = require('grex');
+var gremlin = grex.gremlin;
+var g = grex.g;
+
 
 var Model = (function() {
 
@@ -60,24 +64,24 @@ var Model = (function() {
     var doc = this;
     var property;
     var properties = this.schema.properties;
-    var gremlin = this.client.gremlin();
+    var query = gremlin();
 
     // Assign Mogwai reserved "$type" property
     doc.$type = this.$type;
 
-    var v = gremlin.g.addVertex(doc.toObject());
+    var v = query.var(g.addVertex(doc.toObject()), 'v');
 
     for (var name in properties) {
       property = properties[name];
 
       if (property.isIndexed()) {
-        v.addProperty(name, this[property.name]);
+        query(v.addProperty(name, this[property.name]));
       } else {
-        v.setProperty(name, this[property.name]);
+        query(v.setProperty(name, this[property.name]));
       }
     }
 
-    return gremlin.exec(this.sync.bind(this, callback));
+    return this.client.exec(query, this.sync.bind(this, callback));
   };
 
   Model.prototype.sync = function(callback, err, response) {

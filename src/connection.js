@@ -20,8 +20,10 @@ var Connection = (function() {
    * Opens a connection to Grex.
    */
   Connection.prototype.open = function(settings, fetchedProcessor) {
+    var client = grex.createClient(settings);
     settings.fetched = fetchedProcessor;
-    grex.connect(settings, this.onConnected.bind(this));
+
+    client.connect(settings, this.onConnected.bind(this));
   };
 
   Connection.prototype.onConnected = function(err, client) {

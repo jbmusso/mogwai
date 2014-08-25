@@ -1,6 +1,9 @@
 var inherits = require('util').inherits;
 
 var _ = require('lodash');
+var grex = require('grex');
+var gremlin = grex.gremlin;
+var g = grex.g;
 
 var RexsterClient = require("./rexster");
 
@@ -52,9 +55,9 @@ var TitanClient = (function() {
    * @return {Promise}
    */
   TitanClient.prototype.getExistingTypes = function() {
-    var gremlin = this.mogwai.connection.client.gremlin();
+    var client = this.mogwai.connection.client;
 
-    return gremlin.g.getIndexedKeys("Vertex.class").exec();
+    return client.exec(g.getIndexedKeys("Vertex.class"));
   };
 
   /**
@@ -67,12 +70,15 @@ var TitanClient = (function() {
    * @return {Promise} to create all keys
    */
   TitanClient.prototype.buildMakeKeyPromise = function(alreadyIndexedKeys) {
-    var gremlin = this.mogwai.connection.client.gremlin();
+    // var gremlin = this.mogwai.connection.client.gremlin();
+    var client = this.mogwai.connection.client;
     var titanKey;
+    var query = gremlin();
+
 
     // Make sure we index the Mogwai special $type key used for binding a model type to a vertex.
     if (alreadyIndexedKeys.indexOf("$type") === -1) {
-      gremlin.g.makeKey("$type").dataType("String.class").indexed("Vertex.class").make();
+      query(g.makeKey("$type").dataType("String.class").indexed("Vertex.class").make());
     }
 
     // Also index keys defined for each model, but skip already indexed keys
@@ -80,18 +86,20 @@ var TitanClient = (function() {
       _.each(model.schema.properties, function(property, propertyName) {
         // Only index keys that were not indexed before, skip otherwise
         if (alreadyIndexedKeys.indexOf(propertyName) === -1) {
-          titanKey = gremlin.g.makeKey(propertyName).dataType(property.getDataType()).indexed("Vertex.class");
+          titanKey = g.makeKey(propertyName).dataType(property.getDataType()).indexed("Vertex.class");
 
           if (property.isUnique()) {
             titanKey.unique();
           }
 
           titanKey.make();
+
+          query(titanKey);
         }
       });
     });
 
-    return gremlin.exec();
+    return query.script && client.exec(query);
   };
 
 
